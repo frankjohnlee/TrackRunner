@@ -8,4 +8,12 @@
     tools:context="com.wordpress.frankhaolunliblog.laprunner.FinishWorkout"
     tools:showIn="@layout/activity_finish_workout">
 
+    <TextView
+        android:id="@+id/CurrentWorkoutStats"
+        android:layout_width="347dp"
+        android:layout_height="438dp"
+        android:text="PreviousWorkoutStats"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="16dp"
+        android:scrollbars = "vertical"/>
 </android.support.constraint.ConstraintLayout>
