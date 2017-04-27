@@ -166,8 +166,7 @@ public class RunActivity extends AppCompatActivity {
             Log.d("DebugCountDecreaseArray", StringArray);
         }
     }
-    // Actually Start/Stop/Pause
-    public void PauseButton (View view){
+    public void StartPauseResumeButton (View view){
         if (!ChronometerStarted){
             SimpleChronometer.start();
             ChronometerStarted = true;

@@ -162,7 +162,7 @@
 
     <Button
         android:text="Start/Pause/Resume"
-        android:onClick="PauseButton"
+        android:onClick="StartPauseResumeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/PauseButton"
