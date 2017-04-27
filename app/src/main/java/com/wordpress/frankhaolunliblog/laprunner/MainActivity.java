@@ -22,6 +22,9 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences.Editor editor;
     int SavedGoalLapsInt;
     int SavedLapsPerKM;
+    String PastInformation;
+    String EmptyString;
+
 
 
 
@@ -41,6 +44,10 @@ public class MainActivity extends AppCompatActivity {
         editor = pref.edit();
         SavedGoalLapsInt = pref.getInt("GoalLapsInt", -1);
         SavedLapsPerKM = pref.getInt("LapsPerKM", -1);
+        EmptyString = "";
+        PastInformation = pref.getString("PastInformation", EmptyString);
+
+        // Display the previous information
         if (SavedGoalLapsInt != -1 && SavedLapsPerKM != -1){
             PreviousPreferences = true;
             if (PreviousPreferences && DebugMode){

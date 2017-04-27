@@ -146,7 +146,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/button3"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         android:text="+ Lap"
@@ -169,11 +170,12 @@
         android:layout_above="@+id/button3"
         android:layout_centerHorizontal="true" />
 
-    <TextView
-        android:id="@+id/textView2"
+    <Button
+        android:text="Finish Workout"
+        android:onClick="FinishWorkoutButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
+        android:id="@+id/FinishWorkoutButton"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />

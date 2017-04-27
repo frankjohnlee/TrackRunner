@@ -12,7 +12,9 @@ import android.view.View;
 import android.widget.Chronometer;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class RunActivity extends AppCompatActivity {
 
@@ -23,7 +25,6 @@ public class RunActivity extends AppCompatActivity {
     TextView LapsLeftTextView;
     Chronometer SimpleChronometer;
     TextView EstimatedTotalTimeTextView;
-    ArrayList TimePerLapArray;
     int LapsLeft;
     int counter = -1;
     long SecondsPreviousLapTime = -1;
@@ -31,6 +32,16 @@ public class RunActivity extends AppCompatActivity {
     int LapsPerKM;
     boolean IsPaused = false;
     long TimePaused = 0;
+    String PastInformation;
+    String TempWorkoutInfo;
+    ArrayList TimePerLapArray;
+    String StringArray;
+    SharedPreferences.Editor editor;
+
+    //|Start|Date|Time|GoalLapInt|LapsPerKM|StatsPerLap[[LapBefore, LapAfter, Seconds], [...], ...,]
+
+
+
 
 
     @Override
@@ -45,9 +56,18 @@ public class RunActivity extends AppCompatActivity {
         LapsLeftTextView = (TextView) findViewById(R.id.LapsLeftDisplay);
         EstimatedTotalTimeTextView = (TextView) findViewById(R.id.EstimatedTotalTimeDisplay);
         SimpleChronometer = (Chronometer) findViewById(R.id.TimeValue); // initiate a
+
+        // Get Shared Preferences
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
+        GoalLapsInt = pref.getInt("GoalLapsInt", 0);
+        LapsPerKM = pref.getInt("LapsPerKM", 0);
+        PastInformation = pref.getString("PastInformation", "");
+        TimePerLapArray = new ArrayList();
+        StringArray = "";
+
+
+
     }
-
-
     public void CountIncrease (View view){
 
         if (ChronometerStarted){
@@ -55,10 +75,6 @@ public class RunActivity extends AppCompatActivity {
             counter ++;
             showValue.setText(Integer.toString(counter));
             // Display Laps Left
-            SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
-            GoalLapsInt = pref.getInt("GoalLapsInt", 0);
-            LapsPerKM = pref.getInt("LapsPerKM", 0);
-
             LapsLeft = GoalLapsInt - counter;
             LapsLeftTextView.setText(Integer.toString(LapsLeft));
 
@@ -111,12 +127,25 @@ public class RunActivity extends AppCompatActivity {
                 EstimatedTotalTimeTextView.setText(hh+":"+mm+":"+ss);
 
             }
+            String thisLap =
+                    "[" + Integer.toString(counter - 1) +
+                    ", " + Integer.toString(counter) +
+                    ", " + Integer.toString(SecondsCurrentTime) +
+                    "]";
+            TimePerLapArray.add(thisLap);
             SecondsPreviousLapTime = SecondsCurrentTime;
-
+            if (DebugMode) {
+                int index = 0;
+                StringArray = "[";
+                while (index <= TimePerLapArray.size()-1){
+                    StringArray += TimePerLapArray.get(index);
+                    index ++;
+                    StringArray += ", ";
+                }
+                StringArray += "]";
+                Log.d("DebugountIncreaseArray", StringArray);
+            }
         }
-
-
-
     }
     public void CountDecrease (View view){
         if (ChronometerStarted && counter > 0) {
@@ -126,11 +155,29 @@ public class RunActivity extends AppCompatActivity {
             EstimatedTimeLeftTextView.setText("");
             EstimatedTotalTimeTextView.setText("");
         }
+        TimePerLapArray.remove(TimePerLapArray.size()- 1);
+        if (DebugMode) {
+            int index = 0;
+            StringArray = "[";
+            while (index <= TimePerLapArray.size()-1){
+                StringArray += TimePerLapArray.get(index);
+            }
+            StringArray += "]";
+            Log.d("DebugCountDecreaseArray", StringArray);
+        }
     }
+    // Actually Start/Stop/Pause
     public void PauseButton (View view){
         if (!ChronometerStarted){
             SimpleChronometer.start();
             ChronometerStarted = true;
+            String date = new SimpleDateFormat("yyyy-MM-dd|hh:mm:ss").format(new Date());
+            TempWorkoutInfo = "";
+            TempWorkoutInfo +=
+                    "|Start|" + date +
+                    "|" + Integer.toString(GoalLapsInt) +
+                    "|" + Integer.toString(LapsPerKM) +
+                    "|";
         }
         else if (IsPaused && ChronometerStarted) {
             SimpleChronometer.setBase(SystemClock.elapsedRealtime() + TimePaused);
@@ -144,8 +191,7 @@ public class RunActivity extends AppCompatActivity {
         }
 
     }
-
-    public void ResetButton (View view){
+    public void ResetButton (View view) {
         if (ChronometerStarted) {
             // On each click this button will increase
             IsPaused = false;
@@ -159,6 +205,29 @@ public class RunActivity extends AppCompatActivity {
             ChronometerStarted = false;
             EstimatedTimeLeftTextView.setText("");
             EstimatedTotalTimeTextView.setText("");
+
+        }
+    }
+    public void FinishWorkoutButton (View view){
+        if (ChronometerStarted) {
+            StringArray = StringArray.substring(0, StringArray.length()-3)+"]|END|";
+            TempWorkoutInfo += StringArray;
+
+            if (DebugMode){
+                Log.d("TempWorkoutInfo", TempWorkoutInfo);
+            }
+            SimpleChronometer.stop();
+
+            // Check for past values
+            SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
+            editor = pref.edit();
+            PastInformation = pref.getString("PastInformation", "");
+            PastInformation += TempWorkoutInfo;
+            editor.putString("PastInformation", PastInformation);
+            editor.apply();
+            if (DebugMode){
+                Log.d("PastInformation", PastInformation);
+            }
         }
 
     }
@@ -184,6 +253,7 @@ public class RunActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 
 
 
