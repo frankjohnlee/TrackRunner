@@ -146,7 +146,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/button3"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         android:text="+ Lap"
@@ -161,13 +162,23 @@
 
     <Button
         android:text="Start/Pause/Resume"
-        android:onClick="PauseButton"
+        android:onClick="StartPauseResumeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/PauseButton"
         android:layout_marginBottom="36dp"
         android:layout_above="@+id/button3"
         android:layout_centerHorizontal="true" />
+
+    <Button
+        android:text="Finish Workout"
+        android:onClick="FinishWorkoutButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/FinishWorkoutButton"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
 
 </RelativeLayout>

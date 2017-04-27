@@ -1,8 +1,10 @@
 package com.wordpress.frankhaolunliblog.laprunner;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.annotation.Keep;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -12,7 +14,9 @@ import android.view.View;
 import android.widget.Chronometer;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class RunActivity extends AppCompatActivity {
 
@@ -23,7 +27,6 @@ public class RunActivity extends AppCompatActivity {
     TextView LapsLeftTextView;
     Chronometer SimpleChronometer;
     TextView EstimatedTotalTimeTextView;
-    ArrayList TimePerLapArray;
     int LapsLeft;
     int counter = -1;
     long SecondsPreviousLapTime = -1;
@@ -31,6 +34,16 @@ public class RunActivity extends AppCompatActivity {
     int LapsPerKM;
     boolean IsPaused = false;
     long TimePaused = 0;
+    String PastInformation;
+    String TempWorkoutInfo;
+    ArrayList TimePerLapArray;
+    String StringArray;
+    SharedPreferences.Editor editor;
+
+    //|Start|Date|Time|GoalLapInt|LapsPerKM|LapBefore,LapAfter,Seconds,...|SecondsTotalTime
+
+
+
 
 
     @Override
@@ -45,24 +58,29 @@ public class RunActivity extends AppCompatActivity {
         LapsLeftTextView = (TextView) findViewById(R.id.LapsLeftDisplay);
         EstimatedTotalTimeTextView = (TextView) findViewById(R.id.EstimatedTotalTimeDisplay);
         SimpleChronometer = (Chronometer) findViewById(R.id.TimeValue); // initiate a
+
+        // Get Shared Preferences
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
+        GoalLapsInt = pref.getInt("GoalLapsInt", 0);
+        LapsPerKM = pref.getInt("LapsPerKM", 0);
+        PastInformation = pref.getString("PastInformation", "");
+        TimePerLapArray = new ArrayList();
+        StringArray = "";
+
+
+
     }
+    public void CountIncrease (View view) {
 
-
-    public void CountIncrease (View view){
-
-        if (ChronometerStarted){
+        if (ChronometerStarted) {
             // On each click this button will increase
-            counter ++;
+            counter++;
             showValue.setText(Integer.toString(counter));
             // Display Laps Left
-            SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
-            GoalLapsInt = pref.getInt("GoalLapsInt", 0);
-            LapsPerKM = pref.getInt("LapsPerKM", 0);
-
             LapsLeft = GoalLapsInt - counter;
             LapsLeftTextView.setText(Integer.toString(LapsLeft));
 
-            if (DebugMode){
+            if (DebugMode) {
                 Log.d("DEBUG_LapsLeft", Integer.toString(LapsLeft));
                 Log.d("DEBUG_GoalLapsInt", Integer.toString(GoalLapsInt));
                 Log.d("LapsLeft", Integer.toString(LapsLeft));
@@ -73,50 +91,61 @@ public class RunActivity extends AppCompatActivity {
             int SecondsCurrentTime = (int) (CurrentTime / 1000);
             long MinutesCurrentTime = (CurrentTime / 1000) / 60;
 
-            if (DebugMode){
+            if (DebugMode) {
                 Log.d("DEBUG_CurrentTime", Long.toString(CurrentTime));
                 Log.d("SecondsCurrentTime", Long.toString(SecondsCurrentTime));
                 Log.d("MinutesCurrentTime", Long.toString(MinutesCurrentTime));
             }
 
-            if (SecondsPreviousLapTime != -1){
+            if (SecondsPreviousLapTime != -1) {
                 long SecondsLastLapSpeed = SecondsCurrentTime - SecondsPreviousLapTime; // in seconds
                 int SecondsEstimatedTimeLeft = (int) SecondsLastLapSpeed * LapsLeft; // in seconds
                 int time = SecondsEstimatedTimeLeft * 1000;
 
                 // Display Estimated Time
-                int h   = (int)(time /3600000);
-                int m = (int)(time - h*3600000)/60000;
-                int s= (int)(time - h*3600000- m*60000)/1000 ;
-                String hh = h < 10 ? "0"+h: h+"";
-                String mm = m < 10 ? "0"+m: m+"";
-                String ss = s < 10 ? "0"+s: s+"";
+                int h = (int) (time / 3600000);
+                int m = (int) (time - h * 3600000) / 60000;
+                int s = (int) (time - h * 3600000 - m * 60000) / 1000;
+                String hh = h < 10 ? "0" + h : h + "";
+                String mm = m < 10 ? "0" + m : m + "";
+                String ss = s < 10 ? "0" + s : s + "";
 
-                if (DebugMode){
+                if (DebugMode) {
                     Log.d("SecondsLastLapSpeed", Long.toString(SecondsLastLapSpeed));
                     Log.d("SecondsEstimatedT", Integer.toString(SecondsEstimatedTimeLeft));
                 }
-                EstimatedTimeLeftTextView.setText(hh+":"+mm+":"+ss);
+                EstimatedTimeLeftTextView.setText(hh + ":" + mm + ":" + ss);
 
                 // Display Estimated Total Time
-                time = (SecondsCurrentTime + SecondsEstimatedTimeLeft)*1000;
+                time = (SecondsCurrentTime + SecondsEstimatedTimeLeft) * 1000;
 
                 // Display Estimated Time
-                h   = (int)(time /3600000);
-                m = (int)(time - h*3600000)/60000;
-                s= (int)(time - h*3600000- m*60000)/1000 ;
-                hh = h < 10 ? "0"+h: h+"";
-                mm = m < 10 ? "0"+m: m+"";
-                ss = s < 10 ? "0"+s: s+"";
-                EstimatedTotalTimeTextView.setText(hh+":"+mm+":"+ss);
+                h = (int) (time / 3600000);
+                m = (int) (time - h * 3600000) / 60000;
+                s = (int) (time - h * 3600000 - m * 60000) / 1000;
+                hh = h < 10 ? "0" + h : h + "";
+                mm = m < 10 ? "0" + m : m + "";
+                ss = s < 10 ? "0" + s : s + "";
+                EstimatedTotalTimeTextView.setText(hh + ":" + mm + ":" + ss);
 
             }
+            String thisLap =
+                            Integer.toString(counter) +
+                            "," + Integer.toString(SecondsCurrentTime);
+            TimePerLapArray.add(thisLap);
             SecondsPreviousLapTime = SecondsCurrentTime;
+            if (DebugMode) {
+                int index = 0;
+                StringArray = "";
+                while (index <= TimePerLapArray.size() - 1) {
+                    StringArray += TimePerLapArray.get(index);
+                    index++;
+                    StringArray += ",";
 
+                    Log.d("DebugountIncreaseArray", StringArray);
+                }
+            }
         }
-
-
-
     }
     public void CountDecrease (View view){
         if (ChronometerStarted && counter > 0) {
@@ -126,11 +155,28 @@ public class RunActivity extends AppCompatActivity {
             EstimatedTimeLeftTextView.setText("");
             EstimatedTotalTimeTextView.setText("");
         }
+        TimePerLapArray.remove(TimePerLapArray.size()- 1);
+        if (DebugMode) {
+            int index = 0;
+            StringArray = "";
+            while (index <= TimePerLapArray.size()-1){
+                StringArray += TimePerLapArray.get(index);
+            }
+            StringArray += "";
+            Log.d("DebugCountDecreaseArray", StringArray);
+        }
     }
-    public void PauseButton (View view){
+    public void StartPauseResumeButton (View view){
         if (!ChronometerStarted){
             SimpleChronometer.start();
             ChronometerStarted = true;
+            String date = new SimpleDateFormat("yyyy-MM-dd|hh:mm:ss").format(new Date());
+            TempWorkoutInfo = "";
+            TempWorkoutInfo +=
+                    "|Start|" + date +
+                    "|" + Integer.toString(GoalLapsInt) +
+                    "|" + Integer.toString(LapsPerKM) +
+                    "|";
         }
         else if (IsPaused && ChronometerStarted) {
             SimpleChronometer.setBase(SystemClock.elapsedRealtime() + TimePaused);
@@ -144,8 +190,7 @@ public class RunActivity extends AppCompatActivity {
         }
 
     }
-
-    public void ResetButton (View view){
+    public void ResetButton (View view) {
         if (ChronometerStarted) {
             // On each click this button will increase
             IsPaused = false;
@@ -159,6 +204,45 @@ public class RunActivity extends AppCompatActivity {
             ChronometerStarted = false;
             EstimatedTimeLeftTextView.setText("");
             EstimatedTotalTimeTextView.setText("");
+
+        }
+    }
+    public void FinishWorkoutButton (View view){
+        if (ChronometerStarted) {
+            int index = 0;
+            StringArray = "";
+            while (index <= TimePerLapArray.size()-1){
+                StringArray += TimePerLapArray.get(index);
+                index ++;
+                StringArray += ",";
+        }
+            StringArray = StringArray.substring(0, StringArray.length()-2);
+            TempWorkoutInfo += StringArray;
+
+            if (DebugMode){
+                Log.d("TempWorkoutInfo", TempWorkoutInfo);
+            }
+            SimpleChronometer.stop();
+
+            // Save workout in storage
+
+            long CurrentTime = SystemClock.elapsedRealtime() - SimpleChronometer.getBase();
+            int SecondsCurrentTime = (int) (CurrentTime / 1000);
+            TempWorkoutInfo += "|" + Integer.toString(SecondsCurrentTime);
+
+            SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
+            editor = pref.edit();
+            PastInformation = pref.getString("PastInformation", "");
+            PastInformation += TempWorkoutInfo;
+            editor.putString("PastInformation", PastInformation);
+            editor.apply();
+
+            //Keep this particular workout
+            editor.putString("ThisWorkout", TempWorkoutInfo);
+            editor.apply();
+            Intent intent = new Intent(this, FinishWorkout.class);
+            startActivity(intent);
+
         }
 
     }
@@ -184,6 +268,7 @@ public class RunActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 
 
 

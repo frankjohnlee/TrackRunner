@@ -21,6 +21,10 @@
         <activity
             android:name=".RunActivity"
             android:label="@string/title_activity_run"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".FinishWorkout"
+            android:label="@string/title_activity_finish_workout"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
