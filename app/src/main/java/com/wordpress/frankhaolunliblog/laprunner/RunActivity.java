@@ -1,8 +1,10 @@
 package com.wordpress.frankhaolunliblog.laprunner;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.annotation.Keep;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -38,7 +40,7 @@ public class RunActivity extends AppCompatActivity {
     String StringArray;
     SharedPreferences.Editor editor;
 
-    //|Start|Date|Time|GoalLapInt|LapsPerKM|StatsPerLap[[LapBefore, LapAfter, Seconds], [...], ...,]
+    //|Start|Date|Time|GoalLapInt|LapsPerKM|StatsPerLap[[LapBefore, LapAfter, Seconds], ...]
 
 
 
@@ -209,7 +211,7 @@ public class RunActivity extends AppCompatActivity {
     }
     public void FinishWorkoutButton (View view){
         if (ChronometerStarted) {
-            StringArray = StringArray.substring(0, StringArray.length()-3)+"]|END|";
+            StringArray = StringArray.substring(0, StringArray.length()-3)+"]";
             TempWorkoutInfo += StringArray;
 
             if (DebugMode){
@@ -217,16 +219,19 @@ public class RunActivity extends AppCompatActivity {
             }
             SimpleChronometer.stop();
 
-            // Check for past values
+//            // Save workout in storage
             SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
             editor = pref.edit();
             PastInformation = pref.getString("PastInformation", "");
             PastInformation += TempWorkoutInfo;
             editor.putString("PastInformation", PastInformation);
             editor.apply();
-            if (DebugMode){
-                Log.d("PastInformation", PastInformation);
-            }
+
+            //Keep this particular workout
+            editor.putString("ThisWorkout", TempWorkoutInfo);
+            editor.apply();
+            Intent intent = new Intent(this, FinishWorkout.class);
+            startActivity(intent);
         }
 
     }
