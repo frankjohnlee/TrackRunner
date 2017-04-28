@@ -15,7 +15,9 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import static android.R.id.input;
 
@@ -28,6 +30,9 @@ public class FinishWorkout extends AppCompatActivity {
     String StrGoalLap = "";
     String StrLapsPerKM = "";
     String StrStatsPerLap = "";
+    int TotalTime = 0;
+    String Tabs = "     ";
+    String StrCurrentWorkoutStats = "";
     boolean DebugMode = true;
     TextView CurrentWorkoutStatsTextView;
 
@@ -42,58 +47,15 @@ public class FinishWorkout extends AppCompatActivity {
 
 
         CurrentWorkoutStatsTextView = (TextView) findViewById(R.id.CurrentWorkoutStats);
-
-
-
         SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
         editor = pref.edit();
         String ThisWorkout = pref.getString("ThisWorkout", "");
-        if (DebugMode){
-            Log.d("ThisWorkout", ThisWorkout);
-        }
+
         this.ExtraFromString(ThisWorkout);
-        String StrCurrentWorkoutStats = "";
-        String Tabs = "     ";
-        StrCurrentWorkoutStats += "Date: " + StrDate + "\n";
-        StrCurrentWorkoutStats += "Start Time: " + StrTime + "\n";
-        StrCurrentWorkoutStats += "Goal: " + StrGoalLap + " laps" + "\n";
-        StrCurrentWorkoutStats += "Track Size: " + StrLapsPerKM + " Laps per KM" + "\n";
-        StrCurrentWorkoutStats += "Time breakdown for each lap: " + "\n";
-
-        // Print Out Each Lap Time
-        int IndexCurrentWorkout = 0;
-        int TotalTime = 0;
-        int LastLapNumberDigits = 0;
-        String[] StatsPerLapArray = StrStatsPerLap.split(",");
-        for (String s: StatsPerLapArray) {
-            if (IndexCurrentWorkout % 2 == 0 && StatsPerLapArray.length - 1 != IndexCurrentWorkout) {
-                LastLapNumberDigits = s.length();
-                StrCurrentWorkoutStats += "Lap: " + s;
-            } else if (IndexCurrentWorkout % 2 != 0) {
-                TotalTime += Integer.valueOf(s);
-
-                if (LastLapNumberDigits == 1) {
-                    StrCurrentWorkoutStats += Tabs + "    Seconds: " + s + "\n";
-                }
-                else if (LastLapNumberDigits == 2) {
-                    StrCurrentWorkoutStats += Tabs + "  Seconds: " + s + "\n";
-                }
-                else if (LastLapNumberDigits == 3) {
-                    StrCurrentWorkoutStats += Tabs + " Seconds: " + s + "\n";
-                }
-
-            }
-            IndexCurrentWorkout ++;
-        }
-        int h = (int) (TotalTime*1000 / 3600000);
-        int m = (int) (TotalTime*1000 - h * 3600000) / 60000;
-        int s = (int) (TotalTime*1000 - h * 3600000 - m * 60000) / 1000;
-        String hh = h < 10 ? "0" + h : h + "";
-        String mm = m < 10 ? "0" + m : m + "";
-        String ss = s < 10 ? "0" + s : s + "";
-
-        StrCurrentWorkoutStats += "Total Workout: " + hh + ":" + mm + ":" + ss;
+        this.SetCurrentWorkoutStatsTextView();
+        this.GetLapValues();
         CurrentWorkoutStatsTextView.setText(StrCurrentWorkoutStats);
+
 
 
     }
@@ -134,4 +96,46 @@ public class FinishWorkout extends AppCompatActivity {
 
 
     }
+    public void GetLapValues(){
+        int IndexCurrentWorkout = 0;
+        TotalTime = 0;
+        int LastLapNumberDigits = 0;
+        String[] StatsPerLapArray = StrStatsPerLap.split(",");
+        for (String s: StatsPerLapArray) {
+            if (IndexCurrentWorkout % 2 == 0 && StatsPerLapArray.length - 1 != IndexCurrentWorkout) {
+                LastLapNumberDigits = s.length();
+                StrCurrentWorkoutStats += "Lap: " + s;
+            } else if (IndexCurrentWorkout % 2 != 0) {
+                TotalTime += Integer.valueOf(s);
+
+                if (LastLapNumberDigits == 1) {
+                    StrCurrentWorkoutStats += Tabs + "    Seconds: " + s + "\n";
+                }
+                else if (LastLapNumberDigits == 2) {
+                    StrCurrentWorkoutStats += Tabs + "  Seconds: " + s + "\n";
+                }
+                else if (LastLapNumberDigits == 3) {
+                    StrCurrentWorkoutStats += Tabs + " Seconds: " + s + "\n";
+                }
+
+            }
+            IndexCurrentWorkout ++;
+        }
+        int h = (int) (TotalTime*1000 / 3600000);
+        int m = (int) (TotalTime*1000 - h * 3600000) / 60000;
+        int s = (int) (TotalTime*1000 - h * 3600000 - m * 60000) / 1000;
+        String hh = h < 10 ? "0" + h : h + "";
+        String mm = m < 10 ? "0" + m : m + "";
+        String ss = s < 10 ? "0" + s : s + "";
+
+        StrCurrentWorkoutStats += "Total Workout: " + hh + ":" + mm + ":" + ss;
+
     }
+    public void SetCurrentWorkoutStatsTextView(){
+        StrCurrentWorkoutStats += "Date: " + StrDate + "\n";
+        StrCurrentWorkoutStats += "Start Time: " + StrTime + "\n";
+        StrCurrentWorkoutStats += "Goal: " + StrGoalLap + " laps" + "\n";
+        StrCurrentWorkoutStats += "Track Size: " + StrLapsPerKM + " Laps per KM" + "\n";
+        StrCurrentWorkoutStats += "Time breakdown for each lap: " + "\n";
+    }
+}
