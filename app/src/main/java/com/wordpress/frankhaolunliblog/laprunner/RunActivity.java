@@ -72,7 +72,7 @@ public class RunActivity extends AppCompatActivity {
     }
     public void CountIncrease (View view) {
 
-        if (ChronometerStarted) {
+        if (ChronometerStarted && !IsPaused) {
             // On each click this button will increase
             counter++;
             showValue.setText(Integer.toString(counter));
@@ -129,11 +129,9 @@ public class RunActivity extends AppCompatActivity {
                 EstimatedTotalTimeTextView.setText(hh + ":" + mm + ":" + ss);
 
             }
-            String thisLap =
-                            Integer.toString(counter) +
-                            "," + Integer.toString(SecondsCurrentTime);
+            int SecondsLastLapSpeed = (int) (SecondsCurrentTime - SecondsPreviousLapTime);
+            String thisLap = Integer.toString(counter) + "," + Integer.toString(SecondsLastLapSpeed);
             TimePerLapArray.add(thisLap);
-            SecondsPreviousLapTime = SecondsCurrentTime;
             if (DebugMode) {
                 int index = 0;
                 StringArray = "";
@@ -145,6 +143,8 @@ public class RunActivity extends AppCompatActivity {
                     Log.d("DebugountIncreaseArray", StringArray);
                 }
             }
+            SecondsPreviousLapTime = SecondsCurrentTime;
+
         }
     }
     public void CountDecrease (View view){
