@@ -148,22 +148,13 @@ public class RunActivity extends AppCompatActivity {
         }
     }
     public void CountDecrease (View view){
-        if (ChronometerStarted && counter > 0) {
+        if (ChronometerStarted && counter > 0 && !IsPaused) {
             // On each click this button will increase
             counter--;
             showValue.setText(Integer.toString(counter));
             EstimatedTimeLeftTextView.setText("");
             EstimatedTotalTimeTextView.setText("");
-        }
-        TimePerLapArray.remove(TimePerLapArray.size()- 1);
-        if (DebugMode) {
-            int index = 0;
-            StringArray = "";
-            while (index <= TimePerLapArray.size()-1){
-                StringArray += TimePerLapArray.get(index);
-            }
-            StringArray += "";
-            Log.d("DebugCountDecreaseArray", StringArray);
+            TimePerLapArray.remove(TimePerLapArray.size()- 1);
         }
     }
     public void StartPauseResumeButton (View view){
@@ -218,18 +209,9 @@ public class RunActivity extends AppCompatActivity {
         }
             StringArray = StringArray.substring(0, StringArray.length()-2);
             TempWorkoutInfo += StringArray;
-
-            if (DebugMode){
-                Log.d("TempWorkoutInfo", TempWorkoutInfo);
-            }
             SimpleChronometer.stop();
 
             // Save workout in storage
-
-            long CurrentTime = SystemClock.elapsedRealtime() - SimpleChronometer.getBase();
-            int SecondsCurrentTime = (int) (CurrentTime / 1000);
-            TempWorkoutInfo += "|" + Integer.toString(SecondsCurrentTime);
-
             SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
             editor = pref.edit();
             PastInformation = pref.getString("PastInformation", "");
