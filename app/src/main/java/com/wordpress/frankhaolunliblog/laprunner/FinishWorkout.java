@@ -5,11 +5,15 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.content.SharedPreferences;
+import android.widget.ScrollView;
 import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -36,16 +40,9 @@ public class FinishWorkout extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         CurrentWorkoutStatsTextView = (TextView) findViewById(R.id.CurrentWorkoutStats);
+
 
 
         SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
@@ -61,18 +58,30 @@ public class FinishWorkout extends AppCompatActivity {
         StrCurrentWorkoutStats += "Start Time: " + StrTime + "\n";
         StrCurrentWorkoutStats += "Goal: " + StrGoalLap + " laps" + "\n";
         StrCurrentWorkoutStats += "Track Size: " + StrLapsPerKM + " Laps per KM" + "\n";
-        StrCurrentWorkoutStats += "Seconds For Each Lap: " + "\n";
+        StrCurrentWorkoutStats += "Time breakdown for each lap: " + "\n";
 
         // Print Out Each Lap Time
         int IndexCurrentWorkout = 0;
         int TotalTime = 0;
+        int LastLapNumberDigits = 0;
         String[] StatsPerLapArray = StrStatsPerLap.split(",");
         for (String s: StatsPerLapArray) {
             if (IndexCurrentWorkout % 2 == 0 && StatsPerLapArray.length - 1 != IndexCurrentWorkout) {
-                StrCurrentWorkoutStats += Tabs + "Lap Number: " + s;
+                LastLapNumberDigits = s.length();
+                StrCurrentWorkoutStats += "Lap: " + s;
             } else if (IndexCurrentWorkout % 2 != 0) {
-                StrCurrentWorkoutStats += Tabs + "Seconds: " + s + "\n";
                 TotalTime += Integer.valueOf(s);
+
+                if (LastLapNumberDigits == 1) {
+                    StrCurrentWorkoutStats += Tabs + "    Seconds: " + s + "\n";
+                }
+                else if (LastLapNumberDigits == 2) {
+                    StrCurrentWorkoutStats += Tabs + "  Seconds: " + s + "\n";
+                }
+                else if (LastLapNumberDigits == 3) {
+                    StrCurrentWorkoutStats += Tabs + " Seconds: " + s + "\n";
+                }
+
             }
             IndexCurrentWorkout ++;
         }
