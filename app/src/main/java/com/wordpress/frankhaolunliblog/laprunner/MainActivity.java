@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.widget.TextView;
 import java.sql.*;
@@ -64,8 +65,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void StartWorkout(View view) {
-
-
+        view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
         // Save these values
         GoalLapsInt = Integer.parseInt(GoalLapsTextview.getText().toString());
         LapsPerKM = Integer.parseInt(LapsPerTextView.getText().toString());

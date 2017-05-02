@@ -55,9 +55,6 @@ public class FinishWorkout extends AppCompatActivity {
         this.SetCurrentWorkoutStatsTextView();
         this.GetLapValues();
         CurrentWorkoutStatsTextView.setText(StrCurrentWorkoutStats);
-
-
-
     }
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

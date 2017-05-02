@@ -31,10 +31,11 @@
         android:layout_height="wrap_content"
         android:id="@+id/textView"
         android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
-        android:layout_marginTop="21dp"
-        android:layout_below="@+id/editText4"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_below="@+id/editText6"
+        android:layout_alignRight="@+id/editText3"
+        android:layout_alignEnd="@+id/editText3"
+        android:layout_alignLeft="@+id/editText3"
+        android:layout_alignStart="@+id/editText3" />
 
     <TextView
         android:text="Laps Left: "
@@ -42,105 +43,101 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
-        android:layout_alignBaseline="@+id/LapsLeftDisplay"
-        android:layout_alignBottom="@+id/LapsLeftDisplay"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_above="@+id/textView2"
+        android:layout_alignRight="@+id/textView2"
+        android:layout_alignEnd="@+id/textView2" />
 
     <TextView
-        android:text="Est Time Left: "
+        android:text="Estimated Time Left: "
         android:id="@+id/editText6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
-        android:layout_alignBaseline="@+id/EstimatedTimeLeftDisplay"
-        android:layout_alignBottom="@+id/EstimatedTimeLeftDisplay"
-        android:layout_alignLeft="@+id/editText5"
-        android:layout_alignStart="@+id/editText5" />
+        android:layout_below="@+id/editText4"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textNoSuggestions"
-        android:text="Est Total Finish Time: "
+        android:text="Estimated Total Finish Time: "
         android:ems="10"
         android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
         android:id="@+id/editText4"
+        android:layout_below="@+id/editText5"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/TimeValue"
+        android:layout_toStartOf="@+id/TimeValue" />
+
+    <TextView
+        android:text="00"
+        android:id="@+id/LapsLeftDisplay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
+        android:textColor ="@android:color/holo_red_dark"
+        android:layout_below="@+id/CountValue"
+        android:layout_alignLeft="@+id/PreviousLapTime"
+        android:layout_alignStart="@+id/PreviousLapTime" />/>
+
+    <TextView
+        android:text="00"
+        android:id ="@+id/CountValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
+        android:textColor ="@android:color/holo_green_dark"
+        android:layout_below="@+id/editText6"
+        android:layout_toRightOf="@+id/editText6"
+        android:layout_toEndOf="@+id/editText6" />/>
+
+    <TextView
+        android:text="Time Since Workout Started: "
+        android:id="@+id/editText5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
     <TextView
-        android:text=""
-        android:id="@+id/LapsLeftDisplay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
-        android:layout_marginTop="30dp"
-        android:layout_below="@+id/CountValue"
-        android:layout_toRightOf="@+id/button"
-        android:layout_toEndOf="@+id/button" />
-
-    <TextView
-        android:text="0"
-        android:id ="@+id/CountValue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
-        android:layout_alignBaseline="@+id/textView"
-        android:layout_alignBottom="@+id/textView"
-        android:layout_alignLeft="@+id/LapsLeftDisplay"
-        android:layout_alignStart="@+id/LapsLeftDisplay" />
-
-    <TextView
-        android:text="Time Ran: "
-        android:id="@+id/editText5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
-        android:layout_above="@+id/LapsLeftDisplay"
-        android:layout_alignRight="@+id/editText4"
-        android:layout_alignEnd="@+id/editText4" />
-
-    <TextView
-        android:text=""
+        android:text="00:00:00"
         android:id ="@+id/EstimatedTimeLeftDisplay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
-        android:layout_alignBaseline="@+id/LapsLeftDisplay"
-        android:layout_alignBottom="@+id/LapsLeftDisplay"
-        android:layout_alignLeft="@+id/TimeValue"
-        android:layout_alignStart="@+id/TimeValue"
-        android:textColor ="@android:color/holo_blue_dark"/>
+        android:textColor ="@android:color/holo_blue_dark"
+        android:layout_below="@+id/EstimatedTotalTimeDisplay"
+        android:layout_alignLeft="@+id/button2"
+        android:layout_alignStart="@+id/button2" />
 
     <TextView
-        android:text=""
+        android:text="00:00:00"
         android:id="@+id/EstimatedTotalTimeDisplay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
-        android:layout_alignParentTop="true"
-        android:layout_alignLeft="@+id/button2"
-        android:layout_alignStart="@+id/button2"
-        android:layout_marginLeft="12dp"
-        android:layout_marginStart="12dp"
-        android:textColor ="@android:color/holo_red_dark"/>
+        android:textColor ="@android:color/holo_red_dark"
+        android:layout_below="@+id/TimeValue"
+        android:layout_alignLeft="@+id/EstimatedTimeLeftDisplay"
+        android:layout_alignStart="@+id/EstimatedTimeLeftDisplay" />
 
     <Chronometer
-        android:text="N/A"
+        android:text="00:00:00"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/TimeValue"
         android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
-        android:layout_alignBaseline="@+id/editText5"
-        android:layout_alignBottom="@+id/editText5"
+        android:textColor="@android:color/holo_green_dark"
+        android:layout_alignParentTop="true"
         android:layout_alignLeft="@+id/EstimatedTotalTimeDisplay"
-        android:layout_alignStart="@+id/EstimatedTotalTimeDisplay"
-        android:textColor="@android:color/holo_green_dark" />
+        android:layout_alignStart="@+id/EstimatedTotalTimeDisplay" />
 
     <Button
-        android:text="ResetButton"
+        android:text="Reset"
         android:onClick="ResetButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -155,18 +152,18 @@
         android:layout_height="wrap_content"
         android:onClick="CountIncrease"
         android:id="@+id/button"
-        android:layout_marginBottom="76dp"
-        android:layout_above="@+id/PauseButton"
+        android:layout_marginBottom="26dp"
+        android:layout_above="@+id/StartPauseResumeButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
     <Button
-        android:text="Start/Pause/Resume"
+        android:text="START"
         android:onClick="StartPauseResumeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/PauseButton"
-        android:layout_marginBottom="36dp"
+        android:id="@+id/StartPauseResumeButton"
+        android:layout_marginBottom="32dp"
         android:layout_above="@+id/button3"
         android:layout_centerHorizontal="true" />
 
@@ -179,6 +176,27 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/LapsLeftDisplay"
+        android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
+        android:text="Previous Lap Time: " />
+
+    <TextView
+        android:id="@+id/PreviousLapTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
+        android:text="00"
+        android:textColor="@android:color/holo_blue_dark"
+        android:layout_below="@+id/LapsLeftDisplay"
+        android:layout_toRightOf="@+id/editText6"
+        android:layout_toEndOf="@+id/editText6" />
 
 
 </RelativeLayout>

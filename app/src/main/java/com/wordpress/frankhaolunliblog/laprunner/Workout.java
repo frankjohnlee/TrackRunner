@@ -4,7 +4,7 @@ package com.wordpress.frankhaolunliblog.laprunner;
  * Created by Frank2 on 4/29/2017.
  */
 
-public class SaveWorkout {
+public class Workout {
     String id;
     String date;
     String time_start;
@@ -34,9 +34,9 @@ public class SaveWorkout {
     Integer total_steps;
     Integer avg_steps;
     
-    public SaveWorkout(){}
+    public Workout(){}
 
-    public SaveWorkout(String id, String date, String time_start, Integer laps_per_km, 
+    public Workout(String id, String date, String time_start, Integer laps_per_km, 
                        Integer total_laps, Integer total_time, String each_lap_time,
                        String fluc_lap_time, Integer avg_lap_time, String each_lap_speed,
                        String fluc_lap_speed, String avg_speed, String each_lap_calories, 
