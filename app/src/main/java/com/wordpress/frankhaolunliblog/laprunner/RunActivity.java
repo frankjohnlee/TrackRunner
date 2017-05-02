@@ -38,6 +38,7 @@ public class RunActivity extends AppCompatActivity {
     TextView EstimatedTotalTimeTextView;
     Button StartPauseResumeButton;
     TextView LastLapTimeTextview;
+    TextView LastLapSpeedTextview;
     int LapsLeft;
     int counter = -1;
     long SecondsPreviousLapTime = -1;
@@ -85,6 +86,7 @@ public class RunActivity extends AppCompatActivity {
             this.UpdateCounter();
             this.UpdateLapsLeft();
             this.UpdateSecondsCurrentTime();
+            this.UpdateLastLapSpeed();
             this.UpdateTimeLeft();
             this.UpdateEstimatedFinishTime();
             this.AddLapSpeedToArray();
@@ -166,6 +168,7 @@ public class RunActivity extends AppCompatActivity {
         SimpleChronometer = (Chronometer) findViewById(R.id.TimeValue); // initiate a
         StartPauseResumeButton = (Button) findViewById(R.id.StartPauseResumeButton);
         LastLapTimeTextview = (TextView) findViewById(R.id.PreviousLapTime);
+        LastLapSpeedTextview = (TextView) findViewById(R.id.PreviousLapSpeed);
     }
     public void GetStoredValues (){
         SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
@@ -194,6 +197,9 @@ public class RunActivity extends AppCompatActivity {
         TempWorkoutInfo = "";
         TimePerLapArray = new ArrayList();
         StringArray = "";
+        LastLapSpeedTextview.setText("00");
+        LastLapTimeTextview.setText("00");
+        SecondsPreviousLapTime = -1;
 
     }
 
@@ -229,15 +235,27 @@ public class RunActivity extends AppCompatActivity {
         LapsLeft = GoalLapsInt - counter;
         LapsLeftTextView.setText(Integer.toString(LapsLeft));
     }
+
     public void UpdateLastLapTimeSeconds (){
         if (SecondsPreviousLapTime != -1) {
-
-            int SecondsLastLapSpeed = (int) (SecondsCurrentTime - SecondsPreviousLapTime); // in seconds
+            int SecondsDifference = (int) (SecondsCurrentTime - SecondsPreviousLapTime);
             String CounterString = "";
-            if (Integer.toString(SecondsLastLapSpeed).length() < 2) {
+            if (Integer.toString(SecondsDifference).length() < 2) {
                 CounterString += "0";
             }
-            LastLapTimeTextview.setText(CounterString + Integer.toString(SecondsLastLapSpeed) + "  Secs");
+            LastLapTimeTextview.setText(CounterString + Integer.toString(SecondsDifference) + "  Secs");
+        }
+    }
+    public void UpdateLastLapSpeed (){
+        if (SecondsPreviousLapTime != -1) {
+            int SecondsDifference = (int) (SecondsCurrentTime - SecondsPreviousLapTime);
+
+            int MinutesPerKM = (SecondsDifference * LapsPerKM)/60;
+            String CounterString = "";
+            if (Integer.toString(MinutesPerKM).length() < 2) {
+                CounterString += "0";
+            }
+            LastLapSpeedTextview.setText(CounterString + Integer.toString(MinutesPerKM) + "  Min/KM");
         }
     }
     public void UpdateSecondsCurrentTime(){
@@ -293,6 +311,7 @@ public class RunActivity extends AppCompatActivity {
         String thisLap = Integer.toString(counter) + "," + Integer.toString(SecondsLastLapSpeed);
         TimePerLapArray.add(thisLap);
     }
+
 
     // Count Decrease Button
     public void ClearEstimateViews (){
@@ -375,7 +394,9 @@ public class RunActivity extends AppCompatActivity {
                         TimePerLapArray = new ArrayList();
                         StringArray = "";
                         StartPauseResumeButton.setText("START");
+                        LastLapSpeedTextview.setText("00");
                         LastLapTimeTextview.setText("00");
+                        SecondsPreviousLapTime = -1;
 
                     }
                 });
@@ -421,6 +442,9 @@ public class RunActivity extends AppCompatActivity {
                         TimePerLapArray = new ArrayList();
                         StringArray = "";
                         StartPauseResumeButton.setText("START");
+                        LastLapSpeedTextview.setText("00");
+                        LastLapTimeTextview.setText("00");
+                        SecondsPreviousLapTime = -1;
 
                     }
                     public void LoadStartWorkoutString (){
