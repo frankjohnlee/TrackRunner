@@ -41,51 +41,54 @@ public class FinishWorkout extends AppCompatActivity {
     String fluc_lap_time;
     double avg_lap_time;
 
-    // Speed
-    String each_lap_speed;
-    String fluc_lap_speed;
-    Integer avg_speed;
+    // TimePerKM
+    String each_lap_TimePerKM;
+    String fluc_lap_TimePerKM;
+    Double avg_TimePerKM;
+
+    // MetersPerSecond
+    String each_lap_MetersPerSecond;
+    String fluc_lap_MetersPerSecond;
+    Double avg_MetersPerSecond;
 
     // Calories
+    ArrayList CalorieChartMetersPerKm;
+    ArrayList CalorieChartMETS;
     String each_lap_calories;
     String fluc_lap_calories;
-    Integer total_calories;
-    Integer avg_calories;
+    Double total_calories;
+    Double avg_calories;
 
     // Steps
     String each_lap_steps;
     String fluc_lap_steps;
-    Integer total_steps;
-    Integer avg_steps;
+    Double total_steps;
+    Double avg_steps;
 
 
     //|Start|Date|Time|GoalLap|LapsPerKM|LapNumber,Seconds, ...
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        this.FindBreakPoint("1");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finish_workout);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        this.FindBreakPoint("2");
+
         EachTimeArray = new ArrayList();
         CurrentWorkoutStatsTextView = (TextView) findViewById(R.id.CurrentWorkoutStats);
         SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
         editor = pref.edit();
         String ThisWorkoutString = pref.getString("ThisWorkout", "");
-//        if (DebugMode){
-//            ThisWorkoutString = "|Start|2017-05-02|12:43:14|70|7|1,11,2,9,3,11,4,4,5,2,";
-//        }
+        if (DebugMode){
+            ThisWorkoutString = "|Start|2017-05-02|12:43:14|70|7|1,11,2,9,3,11,4,4,5,2,";
+        }
 
-        this.FindBreakPoint("3");
         this.ExtraFromString(ThisWorkoutString);
-        this.FindBreakPoint("4");
         this.SetCurrentWorkoutStatsTextView();
-        this.FindBreakPoint("5");
         this.GetLapValues();
-        this.FindBreakPoint("6");
         this.DataIntoDatabase();
 
         CurrentWorkoutStatsTextView.setText(StrCurrentWorkoutStats);
@@ -188,8 +191,8 @@ public class FinishWorkout extends AppCompatActivity {
 
         // "|Start|2017-05-02|12:43:14|70|7|1,11,2,9,3,11,4,4,5,2,";
 
+        // Get all the values I want
         id = StrDate + ", " + StrTime;
-        ThisWorkout = new Workout(id);
         date = StrDate; // 2017-05-02
         time_start = StrTime; // 12:43:14
         laps_per_km = Integer.valueOf(StrLapsPerKM); // 7
@@ -198,10 +201,19 @@ public class FinishWorkout extends AppCompatActivity {
         each_lap_time = this.EachLapTimeHelper(EachTimeArray); // 11  9  11  4  2
         fluc_lap_time = this.FlucLapTimeHelper(EachTimeArray); //   -   +   -  -
         avg_lap_time = this.AvgLapTimeHelper(EachTimeArray); // 7.4
-        each_lap_speed = this.EachLapSpeedHelper(EachTimeArray); // 1.28 1.05 1.28 0.46 0.23
+        each_lap_TimePerKM = this.EachLapTimePerKMHelper(EachTimeArray); // 1.28 1.05 1.28 0.46 0.23
+        fluc_lap_TimePerKM = this.FlucLapTimePerKMHelper(each_lap_TimePerKM); //    -    +    -    -
+        avg_TimePerKM = this.AvgTimePerKMHelper(each_lap_TimePerKM); // 0.86
+
+
+
+
+        this.SetCaloriesMETS();
+
+
 
         if (DebugMode) {
-            Log.d("StrDate", StrDate);
+            Log.d("id", id);
             Log.d("date", date);
             Log.d("time_start", time_start);
             Log.d("laps_per_km ", Integer.toString(laps_per_km));
@@ -210,8 +222,29 @@ public class FinishWorkout extends AppCompatActivity {
             Log.d("each_lap_time", each_lap_time);
             Log.d("fluc_lap_time", fluc_lap_time);
             Log.d("avg_lap_time", Double.toString(avg_lap_time));
-            Log.d("each_lap_speed", each_lap_speed);
+            Log.d("each_lap_TimePerKM", each_lap_TimePerKM);
+            Log.d("fluc_lap_TimePerKM", fluc_lap_TimePerKM);
+            Log.d("avg_TimePerKM", Double.toString(avg_TimePerKM));
+
         }
+
+
+        // Store values inside Workout variable
+        ThisWorkout = new Workout(id);
+        ThisWorkout.setId(id);
+        ThisWorkout.setDate(date);
+        ThisWorkout.setTime_start(time_start);
+        ThisWorkout.setLaps_per_km(laps_per_km);
+        ThisWorkout.setTotal_laps(total_laps);
+        ThisWorkout.setTotal_time(TotalTime);
+        ThisWorkout.setEach_lap_time(each_lap_time);
+        ThisWorkout.setFluc_lap_time(fluc_lap_time);
+        ThisWorkout.setAvg_lap_time(avg_lap_time);
+        ThisWorkout.setEach_lap_TimePerKM(each_lap_TimePerKM);
+        ThisWorkout.setFluc_lap_TimePerKM(fluc_lap_TimePerKM);
+        ThisWorkout.setAvg_TimePerKM(avg_TimePerKM);
+
+
 
 
 
@@ -284,7 +317,7 @@ public class FinishWorkout extends AppCompatActivity {
         return alltimes/theArray.size();
 
     }
-    public String EachLapSpeedHelper(ArrayList<String> theArray){
+    public String EachLapTimePerKMHelper(ArrayList<String> theArray){
         int index = 0;
         String returnString = "";
         while (index <= theArray.size() - 1){
@@ -299,7 +332,86 @@ public class FinishWorkout extends AppCompatActivity {
         }
         return returnString;
     }
+    public String FlucLapTimePerKMHelper(String theString){
+        /* String -> String
+         * Method takes a string of lap TimePerKMs, in min/sec and outputs a string of +, -, = which tells of fluctuations.
+         */
+        String[] theStringArray = theString.split(" ");
+        String returnString = "";
+        double LastTimePerKM = -999999;
+        for (String TimePerKM: theStringArray){
+            double TimePerKMDouble = Double.valueOf(TimePerKM);
+            if (LastTimePerKM != -999999 && LastTimePerKM < TimePerKMDouble){
+                returnString += "+ ";
+            }
+            else if (LastTimePerKM != -999999 && LastTimePerKM > TimePerKMDouble){
+                returnString += "- ";
+            }
+            else if (LastTimePerKM != -999999 && LastTimePerKM > TimePerKMDouble){
+                returnString += "= ";
+            }
+            LastTimePerKM = TimePerKMDouble;
+        }
+        return returnString;
 
+    }
+    public double AvgTimePerKMHelper(String theString){
+        String[] theStringArray = theString.split(" ");
+        double returnDouble = 0;
+        double TimePerKMLength = 0;
+
+        for (String TimePerKM: theStringArray){
+
+            double TimePerKMDouble = Double.valueOf(TimePerKM);
+            returnDouble += TimePerKMDouble;
+            TimePerKMLength ++;
+        }
+        String StringReturnDouble = Double.toString(returnDouble/TimePerKMLength);
+
+        if (Double.toString(returnDouble/TimePerKMLength).length() > 4){
+            StringReturnDouble = StringReturnDouble.substring(0, 4);
+        }
+
+        return Double.valueOf(StringReturnDouble);
+    }
+    public void SetCaloriesMETS(){
+        CalorieChartMetersPerKm = new ArrayList();
+        CalorieChartMetersPerKm.add(8.078);
+        CalorieChartMetersPerKm.add(7.456);
+        CalorieChartMetersPerKm.add(7.146);
+        CalorieChartMetersPerKm.add(6.214);
+        CalorieChartMetersPerKm.add(5.592);
+        CalorieChartMetersPerKm.add(5.28);
+        CalorieChartMetersPerKm.add(4.971);
+        CalorieChartMetersPerKm.add(4.66);
+        CalorieChartMetersPerKm.add(4.35);
+        CalorieChartMetersPerKm.add(4.04);
+        CalorieChartMetersPerKm.add(3.728);
+        CalorieChartMetersPerKm.add(3.42);
+        CalorieChartMetersPerKm.add(3.107);
+        CalorieChartMetersPerKm.add(2.86);
+        CalorieChartMetersPerKm.add(2.67);
+
+        CalorieChartMETS = new ArrayList();
+        CalorieChartMETS.add(6.0);
+        CalorieChartMETS.add(8.3);
+        CalorieChartMETS.add(9.0);
+        CalorieChartMETS.add(9.8);
+        CalorieChartMETS.add(10.5);
+        CalorieChartMETS.add(11.0);
+        CalorieChartMETS.add(11.5);
+        CalorieChartMETS.add(11.8);
+        CalorieChartMETS.add(12.3);
+        CalorieChartMETS.add(12.8);
+        CalorieChartMETS.add(14.5);
+        CalorieChartMETS.add(16.0);
+        CalorieChartMETS.add(19.0);
+        CalorieChartMETS.add(19.8);
+        CalorieChartMETS.add(23.0);
+
+
+
+    }
 
 
 

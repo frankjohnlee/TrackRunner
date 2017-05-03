@@ -33,7 +33,8 @@ public class RunActivity extends AppCompatActivity {
     TextView EstimatedTotalTimeTextView;
     Button StartPauseResumeButton;
     TextView LastLapTimeTextview;
-    TextView LastLapSpeedTextview;
+    TextView LastLapTimePerKMTextview;
+    TextView MetersPerSecondTextview;
     int LapsLeft;
     int counter = -1;
     long SecondsPreviousLapTime = -1;
@@ -84,10 +85,11 @@ public class RunActivity extends AppCompatActivity {
             this.UpdateCounter();
             this.UpdateLapsLeft();
             this.UpdateSecondsCurrentTime();
-            this.UpdateLastLapSpeed();
+            this.UpdateLastLapMetersPerSecond();
+            this.UpdateLastLapTimePerKM();
             this.UpdateTimeLeft();
             this.UpdateEstimatedFinishTime();
-            this.AddLapSpeedToArray();
+            this.AddTimePerLap();
             this.UpdateLastLapTimeSeconds();
             SecondsPreviousLapTime = SecondsCurrentTime;
 
@@ -166,7 +168,8 @@ public class RunActivity extends AppCompatActivity {
         SimpleChronometer = (Chronometer) findViewById(R.id.TimeValue); // initiate a
         StartPauseResumeButton = (Button) findViewById(R.id.StartPauseResumeButton);
         LastLapTimeTextview = (TextView) findViewById(R.id.PreviousLapTime);
-        LastLapSpeedTextview = (TextView) findViewById(R.id.PreviousLapSpeed);
+        LastLapTimePerKMTextview = (TextView) findViewById(R.id.PreviousLapTimePerKM);
+        MetersPerSecondTextview = (TextView) findViewById(R.id.MetersPerSecondTextview);
     }
     public void GetStoredValues (){
         SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
@@ -183,21 +186,23 @@ public class RunActivity extends AppCompatActivity {
         IsPaused = false;
         TimePaused = 0;
         counter = 0;
-        showValue.setText("00");
         SimpleChronometer.stop();
         SimpleChronometer.setBase(SystemClock.elapsedRealtime());
-        SimpleChronometer.setText("00:00:00");
         LapsLeft = GoalLapsInt;
-        LapsLeftTextView.setText(Integer.toString(GoalLapsInt));
         ChronometerStarted = false;
-        EstimatedTimeLeftTextView.setText("");
-        EstimatedTotalTimeTextView.setText("");
         TempWorkoutInfo = "";
         TimePerLapArray = new ArrayList();
         StringArray = "";
-        LastLapSpeedTextview.setText("00");
-        LastLapTimeTextview.setText("00");
+
+        SimpleChronometer.setText("00:00:00");
+        EstimatedTimeLeftTextView.setText("00:00:00");
+        EstimatedTotalTimeTextView.setText("00:00:00");
+        LapsLeftTextView.setText(Integer.toString(GoalLapsInt) +" laps");
+        showValue.setText("00 laps");
+        LastLapTimePerKMTextview.setText("00 min/km");
+        LastLapTimeTextview.setText("00 s");
         SecondsPreviousLapTime = -1;
+        MetersPerSecondTextview.setText("00 m/s");
 
     }
 
@@ -227,11 +232,11 @@ public class RunActivity extends AppCompatActivity {
         }
 
         // Update Counter
-         showValue.setText(CounterString + Integer.toString(counter));
+         showValue.setText(CounterString + Integer.toString(counter) + " laps");
     }
     public void UpdateLapsLeft (){
         LapsLeft = GoalLapsInt - counter;
-        LapsLeftTextView.setText(Integer.toString(LapsLeft));
+        LapsLeftTextView.setText(Integer.toString(LapsLeft) + " laps");
     }
 
     public void UpdateLastLapTimeSeconds (){
@@ -244,7 +249,7 @@ public class RunActivity extends AppCompatActivity {
             LastLapTimeTextview.setText(CounterString + Integer.toString(SecondsDifference) + "  Secs");
         }
     }
-    public void UpdateLastLapSpeed (){
+    public void UpdateLastLapTimePerKM (){
         if (SecondsPreviousLapTime != -1) {
             double SecondsDifference = (double) (SecondsCurrentTime - SecondsPreviousLapTime);
 
@@ -257,7 +262,48 @@ public class RunActivity extends AppCompatActivity {
             if (StringMinPerKm.length() > 4){
                 StringMinPerKm = StringMinPerKm.substring(0, 4);
             }
-            LastLapSpeedTextview.setText(CounterString + StringMinPerKm + "  Min/KM");
+            LastLapTimePerKMTextview.setText(CounterString + StringMinPerKm + "  min/km");
+        }
+    }
+    public void UpdateLastLapMetersPerSecond (){
+        if (SecondsPreviousLapTime != -1) {
+            double SecondsDifference = (double) (SecondsCurrentTime - SecondsPreviousLapTime);
+            double MetersPerLap = (double) 1000 / (double) LapsPerKM;
+
+
+            double MetersPerSecond = MetersPerLap/SecondsDifference;
+            String CounterString = "";
+            if (Double.toString(MetersPerSecond).length() < 2) {
+                CounterString += "0";
+            }
+            String StringMetersPerSecond = Double.toString(MetersPerSecond);
+            Integer LengthofStringMetersPerSecond = StringMetersPerSecond.length();
+            if (LengthofStringMetersPerSecond > 4){
+                int index = 0;
+                boolean FoundDot = false;
+
+                // At the end of while loop index will equal the index of the "."
+                while (index <= LengthofStringMetersPerSecond - 1 && !FoundDot){
+                    String currentString = ("" + StringMetersPerSecond.charAt(index));
+                    if (currentString == "."){
+                        FoundDot = true;
+                    }
+                    index ++;
+                }
+                int endPoint = 4;
+                if (FoundDot) {
+                    // We will add 3 to the index value since we want two values after the dot.
+                    endPoint = index + 3;
+                }
+                StringMetersPerSecond = StringMetersPerSecond.substring(0, endPoint);
+            }
+            if (StringMetersPerSecond != "Infinity" && MetersPerSecond < 141){ // Occurs if time is 0.
+                MetersPerSecondTextview.setText(CounterString + StringMetersPerSecond + "  m/s");
+            }
+            else {
+                MetersPerSecondTextview.setText("00.0" + "  m/s");
+            }
+
         }
     }
     public void UpdateSecondsCurrentTime(){
@@ -267,8 +313,8 @@ public class RunActivity extends AppCompatActivity {
     public void UpdateTimeLeft (){
         if (SecondsPreviousLapTime != -1) {
 
-        long SecondsLastLapSpeed = SecondsCurrentTime - SecondsPreviousLapTime; // in seconds
-        int SecondsEstimatedTimeLeft = (int) SecondsLastLapSpeed * LapsLeft; // in seconds
+        long SecondsLastLapTimePerKM = SecondsCurrentTime - SecondsPreviousLapTime; // in seconds
+        int SecondsEstimatedTimeLeft = (int) SecondsLastLapTimePerKM * LapsLeft; // in seconds
         int time = SecondsEstimatedTimeLeft * 1000;
 
         // Display Estimated Time
@@ -290,8 +336,8 @@ public class RunActivity extends AppCompatActivity {
         }
     public void UpdateEstimatedFinishTime () {
         if (SecondsPreviousLapTime != -1) {
-            long SecondsLastLapSpeed = SecondsCurrentTime - SecondsPreviousLapTime; // in seconds
-            int SecondsEstimatedTimeLeft = (int) SecondsLastLapSpeed * LapsLeft; // in seconds
+            long SecondsLastLapTimePerKM = SecondsCurrentTime - SecondsPreviousLapTime; // in seconds
+            int SecondsEstimatedTimeLeft = (int) SecondsLastLapTimePerKM * LapsLeft; // in seconds
             int time = (SecondsCurrentTime + SecondsEstimatedTimeLeft) * 1000;
 
             // Display Estimated Time
@@ -308,9 +354,9 @@ public class RunActivity extends AppCompatActivity {
         }
 
     }
-    public void AddLapSpeedToArray(){
-        int SecondsLastLapSpeed = (int) (SecondsCurrentTime - SecondsPreviousLapTime);
-        String thisLap = Integer.toString(counter) + "," + Integer.toString(SecondsLastLapSpeed);
+    public void AddTimePerLap(){
+        int SecondsLastLapTimePerKM = (int) (SecondsCurrentTime - SecondsPreviousLapTime);
+        String thisLap = Integer.toString(counter) + "," + Integer.toString(SecondsLastLapTimePerKM);
         TimePerLapArray.add(thisLap);
     }
 
@@ -337,7 +383,7 @@ public class RunActivity extends AppCompatActivity {
                         "|";
 
     }
-    public void AddLapSpeedToTempWorkout (){
+    public void AddLapTimePerKMToTempWorkout (){
         int index = 0;
         String StringArray = "";
         while (index <= TimePerLapArray.size()-1){
@@ -383,22 +429,23 @@ public class RunActivity extends AppCompatActivity {
                         IsPaused = false;
                         TimePaused = 0;
                         counter = 0;
-                        showValue.setText("00");
                         SimpleChronometer.stop();
                         SimpleChronometer.setBase(SystemClock.elapsedRealtime());
-                        SimpleChronometer.setText("00:00:00");
                         LapsLeft = GoalLapsInt;
-                        LapsLeftTextView.setText(Integer.toString(GoalLapsInt));
                         ChronometerStarted = false;
-                        EstimatedTimeLeftTextView.setText("");
-                        EstimatedTotalTimeTextView.setText("");
                         TempWorkoutInfo = "";
                         TimePerLapArray = new ArrayList();
                         StringArray = "";
-                        StartPauseResumeButton.setText("START");
-                        LastLapSpeedTextview.setText("00");
-                        LastLapTimeTextview.setText("00");
+
+                        SimpleChronometer.setText("00:00:00");
+                        EstimatedTimeLeftTextView.setText("00:00:00");
+                        EstimatedTotalTimeTextView.setText("00:00:00");
+                        LapsLeftTextView.setText(Integer.toString(GoalLapsInt) +" laps");
+                        showValue.setText("00 laps");
+                        LastLapTimePerKMTextview.setText("00 min/km");
+                        LastLapTimeTextview.setText("00 s");
                         SecondsPreviousLapTime = -1;
+                        MetersPerSecondTextview.setText("00 m/s");
 
                     }
                 });
@@ -424,7 +471,7 @@ public class RunActivity extends AppCompatActivity {
                         this.FindBreakPoint("1");
                         this.LoadStartWorkoutString();
                         this.FindBreakPoint("2");
-                        this.AddLapSpeedToTempWorkout();
+                        this.AddTimePerLap();
                         this.FindBreakPoint("3");
                         this.StoreThisWorkout();
                         this.FindBreakPoint("4");
@@ -437,22 +484,23 @@ public class RunActivity extends AppCompatActivity {
                         IsPaused = false;
                         TimePaused = 0;
                         counter = 0;
-                        showValue.setText("00");
                         SimpleChronometer.stop();
                         SimpleChronometer.setBase(SystemClock.elapsedRealtime());
-                        SimpleChronometer.setText("00:00:00");
                         LapsLeft = GoalLapsInt;
-                        LapsLeftTextView.setText(Integer.toString(GoalLapsInt));
                         ChronometerStarted = false;
-                        EstimatedTimeLeftTextView.setText("");
-                        EstimatedTotalTimeTextView.setText("");
                         TempWorkoutInfo = "";
                         TimePerLapArray = new ArrayList();
                         StringArray = "";
-                        StartPauseResumeButton.setText("START");
-                        LastLapSpeedTextview.setText("00");
-                        LastLapTimeTextview.setText("00");
+
+                        SimpleChronometer.setText("00:00:00");
+                        EstimatedTimeLeftTextView.setText("00:00:00");
+                        EstimatedTotalTimeTextView.setText("00:00:00");
+                        LapsLeftTextView.setText(Integer.toString(GoalLapsInt) +" laps");
+                        showValue.setText("00 laps");
+                        LastLapTimePerKMTextview.setText("00 min/km");
+                        LastLapTimeTextview.setText("00 s");
                         SecondsPreviousLapTime = -1;
+                        MetersPerSecondTextview.setText("00 m/s");
 
                     }
                     public void LoadStartWorkoutString (){
@@ -465,7 +513,7 @@ public class RunActivity extends AppCompatActivity {
                                         "|";
 
                     }
-                    public void AddLapSpeedToTempWorkout (){
+                    public void AddTimePerLap (){
                         int index = 0;
                         String StringArray = "";
                         while (index <= TimePerLapArray.size()-1){

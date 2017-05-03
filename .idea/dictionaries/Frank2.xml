@@ -2,6 +2,9 @@
   <dictionary name="Frank2">
     <words>
       <w>fluc</w>
+      <w>lengthof</w>
+      <w>meterspersecond</w>
+      <w>timeperkm</w>
     </words>
   </dictionary>
 </component>
