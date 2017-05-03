@@ -20,7 +20,7 @@ public class Workout {
     // Speed
     String each_lap_speed;
     String fluc_lap_speed;
-    String avg_speed;
+    Integer avg_speed;
 
     // Calories
     String each_lap_calories;
@@ -33,45 +33,40 @@ public class Workout {
     String fluc_lap_steps;
     Integer total_steps;
     Integer avg_steps;
-    
+
     public Workout(){}
 
-    public Workout(String id, String date, String time_start, Integer laps_per_km, 
-                       Integer total_laps, Integer total_time, String each_lap_time,
-                       String fluc_lap_time, Integer avg_lap_time, String each_lap_speed,
-                       String fluc_lap_speed, String avg_speed, String each_lap_calories, 
-                       String fluc_lap_calories, Integer total_calories, Integer avg_calories,
-                       String each_lap_steps, String fluc_lap_steps, Integer total_steps,
-                       Integer avg_steps){
+    public Workout(String id){
             this.id = id;
-            this.date = date;
-            this.time_start = time_start;
-            this.laps_per_km = laps_per_km;
-            this.total_laps = total_laps;
+            this.date = "";
+            this.time_start = "";
+            this.laps_per_km = -1;
+            this.total_laps = -1;
 
             // Time
-            this.total_time = total_time;
-            this.each_lap_time = each_lap_time;
-            this.fluc_lap_time = fluc_lap_time;
-            this.avg_lap_time = avg_lap_time;
+            this.total_time = -1;
+            this.each_lap_time = "";
+            this.fluc_lap_time = "";
+            this.avg_lap_time = -1;
 
             // Speed
-            this.each_lap_speed = each_lap_speed;
-            this.fluc_lap_speed = fluc_lap_speed;
-            this.avg_speed = avg_speed;
+            this.each_lap_speed = "";
+            this.fluc_lap_speed = "";
+            this.avg_speed = -1;
 
             // Calories
-            this.each_lap_calories = each_lap_calories;
-            this.fluc_lap_calories = fluc_lap_calories;
-            this.total_calories = total_calories;
-            this.avg_calories = avg_calories;
+            this.each_lap_calories = "";
+            this.fluc_lap_calories = "";
+            this.total_calories = -1;
+            this.avg_calories = -1;
 
             // Steps
-            this.each_lap_steps = each_lap_steps;
-            this.fluc_lap_steps = fluc_lap_steps;
-            this.total_steps = total_steps;
-            this.avg_steps = avg_steps;
+            this.each_lap_steps = "";
+            this.fluc_lap_steps = "";
+            this.total_steps = -1;
+            this.avg_steps = -1;
              }
+
 
     public String getId() {
         return id;
@@ -161,11 +156,11 @@ public class Workout {
         this.fluc_lap_speed = fluc_lap_speed;
     }
 
-    public String getAvg_speed() {
+    public Integer getAvg_speed() {
         return avg_speed;
     }
 
-    public void setAvg_speed(String avg_speed) {
+    public void setAvg_speed(Integer avg_speed) {
         this.avg_speed = avg_speed;
     }
 

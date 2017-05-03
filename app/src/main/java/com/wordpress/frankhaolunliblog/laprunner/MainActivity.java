@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.widget.TextView;
-import java.sql.*;
 
 public class MainActivity extends AppCompatActivity {
 

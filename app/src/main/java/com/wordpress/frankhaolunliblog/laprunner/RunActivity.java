@@ -6,23 +6,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.os.Vibrator;
-import android.support.annotation.Keep;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.HapticFeedbackConstants;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
 
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -48,10 +43,13 @@ public class RunActivity extends AppCompatActivity {
     long TimePaused = 0;
     int SecondsCurrentTime;
     String PastInformation;
+    String PastTotalTimes;
     String TempWorkoutInfo;   //|Start|Date|Time|GoalLapInt|LapsPerKM|LapBefore,LapAfter,Seconds,...
     ArrayList TimePerLapArray;
     String StringArray;
     SharedPreferences.Editor editor;
+
+
 
 
 
@@ -248,14 +246,18 @@ public class RunActivity extends AppCompatActivity {
     }
     public void UpdateLastLapSpeed (){
         if (SecondsPreviousLapTime != -1) {
-            int SecondsDifference = (int) (SecondsCurrentTime - SecondsPreviousLapTime);
+            double SecondsDifference = (double) (SecondsCurrentTime - SecondsPreviousLapTime);
 
-            int MinutesPerKM = (SecondsDifference * LapsPerKM)/60;
+            double MinutesPerKM = (SecondsDifference * LapsPerKM)/60;
             String CounterString = "";
-            if (Integer.toString(MinutesPerKM).length() < 2) {
+            if (Double.toString(MinutesPerKM).length() < 2) {
                 CounterString += "0";
             }
-            LastLapSpeedTextview.setText(CounterString + Integer.toString(MinutesPerKM) + "  Min/KM");
+            String StringMinPerKm = Double.toString(MinutesPerKM);
+            if (StringMinPerKm.length() > 4){
+                StringMinPerKm = StringMinPerKm.substring(0, 4);
+            }
+            LastLapSpeedTextview.setText(CounterString + StringMinPerKm + "  Min/KM");
         }
     }
     public void UpdateSecondsCurrentTime(){
@@ -419,11 +421,17 @@ public class RunActivity extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        this.FindBreakPoint("1");
                         this.LoadStartWorkoutString();
+                        this.FindBreakPoint("2");
                         this.AddLapSpeedToTempWorkout();
+                        this.FindBreakPoint("3");
                         this.StoreThisWorkout();
+                        this.FindBreakPoint("4");
                         this.ResetEverything();
+                        this.FindBreakPoint("5");
                         this.GoToFinishedWorkoutActivity();
+                        this.FindBreakPoint("6");
                     }
                     public void ResetEverything (){
                         IsPaused = false;
@@ -479,10 +487,16 @@ public class RunActivity extends AppCompatActivity {
                         //Keep this particular workout
                         editor.putString("ThisWorkout", TempWorkoutInfo);
                         editor.apply();
+
                     }
                     public void GoToFinishedWorkoutActivity(){
                         Intent intent = new Intent(context, FinishWorkout.class);
                         startActivity(intent);
+                    }
+                    public void FindBreakPoint(String string){
+                        if (DebugMode){
+                            Log.d("Find Break Point", string);
+                        }
                     }
                 });
 
@@ -499,7 +513,7 @@ public class RunActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    // vibrate on tap
+    // Get Data and Put Them Into A Table
 
 
 }
