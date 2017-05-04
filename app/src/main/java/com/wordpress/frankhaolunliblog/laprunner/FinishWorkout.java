@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 
 public class FinishWorkout extends AppCompatActivity {
-    boolean DebugMode = false;
+    boolean DebugMode = true;
     SharedPreferences pref;
     SharedPreferences.Editor editor;
     String StrDate = "";
@@ -193,18 +193,28 @@ public class FinishWorkout extends AppCompatActivity {
 
         // Get all the values I want
         id = StrDate + ", " + StrTime;
+
+        // General Info
         date = StrDate; // 2017-05-02
         time_start = StrTime; // 12:43:14
         laps_per_km = Integer.valueOf(StrLapsPerKM); // 7
         total_laps = EachTimeArray.size(); // 5
         total_time = TotalTime; // 37
+
+        // Time for each lap
         each_lap_time = this.EachLapTimeHelper(EachTimeArray); // 11  9  11  4  2
         fluc_lap_time = this.FlucLapTimeHelper(EachTimeArray); //   -   +   -  -
         avg_lap_time = this.AvgLapTimeHelper(EachTimeArray); // 7.4
+
+        // min/km
         each_lap_TimePerKM = this.EachLapTimePerKMHelper(EachTimeArray); // 1.28 1.05 1.28 0.46 0.23
         fluc_lap_TimePerKM = this.FlucLapTimePerKMHelper(each_lap_TimePerKM); //    -    +    -    -
         avg_TimePerKM = this.AvgTimePerKMHelper(each_lap_TimePerKM); // 0.86
 
+        // m/s (meters per second)
+        each_lap_MetersPerSecond = this.EachLapMetersPerSecondHelper(EachTimeArray); // 12.9  15.8   12.9   35.7   71.4
+        fluc_lap_MetersPerSecond = this.FlucGeneralHelper(each_lap_MetersPerSecond); //      -     -      +      +
+        avg_MetersPerSecond = this.AvgGeneralHelper(each_lap_MetersPerSecond); // 29.740000000000002
 
 
 
@@ -225,7 +235,9 @@ public class FinishWorkout extends AppCompatActivity {
             Log.d("each_lap_TimePerKM", each_lap_TimePerKM);
             Log.d("fluc_lap_TimePerKM", fluc_lap_TimePerKM);
             Log.d("avg_TimePerKM", Double.toString(avg_TimePerKM));
-
+            Log.d("MPerSecond", each_lap_MetersPerSecond);
+            Log.d("fluc_lap_m/s", fluc_lap_MetersPerSecond);
+            Log.d("avg_MetersPerSecond", Double.toString(avg_MetersPerSecond));
         }
 
 
@@ -243,9 +255,9 @@ public class FinishWorkout extends AppCompatActivity {
         ThisWorkout.setEach_lap_TimePerKM(each_lap_TimePerKM);
         ThisWorkout.setFluc_lap_TimePerKM(fluc_lap_TimePerKM);
         ThisWorkout.setAvg_TimePerKM(avg_TimePerKM);
-
-
-
+        ThisWorkout.setEach_lap_MetersPerSecond(each_lap_MetersPerSecond);
+        ThisWorkout.setFluc_lap_MetersPerSecond(fluc_lap_MetersPerSecond);
+        ThisWorkout.setAvg_MetersPerSecond(avg_MetersPerSecond);
 
 
     }
@@ -373,6 +385,55 @@ public class FinishWorkout extends AppCompatActivity {
         }
 
         return Double.valueOf(StringReturnDouble);
+    }
+    public String EachLapMetersPerSecondHelper(ArrayList<String> theArray) {
+        String ReturnString = "";
+        for (String time: theArray){
+            double SecondsDifference = Double.valueOf(time);
+            double MetersPerLap = ((double) 1 / (double) laps_per_km) * 1000;
+            double MetersPerSecond = MetersPerLap / SecondsDifference;
+            String StringMetersPerSecond = Double.toString(MetersPerSecond);
+            if (StringMetersPerSecond.length() > 4){
+                StringMetersPerSecond = String.valueOf(StringMetersPerSecond).substring(0, 4);
+            }
+            ReturnString += StringMetersPerSecond + " ";
+        }
+        return ReturnString;
+    }
+    public String FlucGeneralHelper(String theString){
+        /* String -> String
+         * Method takes a string of values each seperated by a space and outputs a string of +, -, = which tells of fluctuations.
+         */
+        String[] theStringArray = theString.split(" ");
+        String returnString = "";
+        double PreviousValue = -999999;
+        for (String TimePerKM: theStringArray){
+            double CurrentValue = Double.valueOf(TimePerKM);
+            if (PreviousValue != -999999 && PreviousValue < CurrentValue){
+                returnString += "+ ";
+            }
+            else if (PreviousValue != -999999 && PreviousValue > CurrentValue){
+                returnString += "- ";
+            }
+            else if (PreviousValue != -999999 && PreviousValue > CurrentValue){
+                returnString += "= ";
+            }
+            PreviousValue = CurrentValue;
+        }
+        return returnString;
+
+    }
+    public double AvgGeneralHelper(String theString){
+        String[] theStringArray = theString.split(" ");
+        double count = 0;
+        double sum = 0;
+        for (String s: theStringArray){
+            double CurrentValue = Double.valueOf(s);
+            sum += CurrentValue;
+            count ++;
+        }
+        return sum / count;
+
     }
     public void SetCaloriesMETS(){
         CalorieChartMetersPerKm = new ArrayList();

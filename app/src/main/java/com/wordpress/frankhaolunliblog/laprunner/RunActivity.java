@@ -30,6 +30,7 @@ public class RunActivity extends AppCompatActivity {
     TextView EstimatedTimeLeftTextView;
     TextView LapsLeftTextView;
     Chronometer SimpleChronometer;
+    Chronometer CurrentLapTime;
     TextView EstimatedTotalTimeTextView;
     Button StartPauseResumeButton;
     TextView LastLapTimeTextview;
@@ -42,6 +43,7 @@ public class RunActivity extends AppCompatActivity {
     int LapsPerKM;
     boolean IsPaused = false;
     long TimePaused = 0;
+    long TimePausedCurrentLap = 0;
     int SecondsCurrentTime;
     String PastInformation;
     String PastTotalTimes;
@@ -77,12 +79,26 @@ public class RunActivity extends AppCompatActivity {
                 cArg.setText(hh + ":" + mm + ":" + ss);
             }
         });
+        CurrentLapTime.setText("00 s");
+        CurrentLapTime.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
+            public void onChronometerTick(Chronometer cArg) {
+                long seconds = (SystemClock.elapsedRealtime() - cArg.getBase()) / 1000;
+                int secondsInt = (int) seconds;
+
+                String CounterString = "";
+                if (Integer.toString(secondsInt).length() < 2) {
+                    CounterString += "0";
+                }
+                cArg.setText(CounterString + Integer.toString(secondsInt) + " s");
+            }
+        });
     }
     public void CountIncrease (View view) {
         if (ChronometerStarted && !IsPaused) {
             view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
             counter++;
             this.UpdateCounter();
+            this.resetCurrentLapTime();
             this.UpdateLapsLeft();
             this.UpdateSecondsCurrentTime();
             this.UpdateLastLapMetersPerSecond();
@@ -102,23 +118,24 @@ public class RunActivity extends AppCompatActivity {
             this.UpdateCounter();
             this.ClearEstimateViews();
             this.DeleteLastRunTime();
+            this.resetCurrentLapTime();
         }
     }
     public void StartPauseResumeButton (View view){
         if (!ChronometerStarted){
-            StartPauseResumeButton.setText("PAUSE");
             view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
             this.StartTimer();
+            StartPauseResumeButton.setText("PAUSE");
         }
         else if (IsPaused && ChronometerStarted) {
-            StartPauseResumeButton.setText("PAUSE");
             view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
             this.ResumeTimer();
+            StartPauseResumeButton.setText("PAUSE");
         }
         else if (!IsPaused && ChronometerStarted) {
-            StartPauseResumeButton.setText("RESUME");
             view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
             this.PauseTimer();
+            StartPauseResumeButton.setText("RESUME");
         }
 
     }
@@ -166,6 +183,7 @@ public class RunActivity extends AppCompatActivity {
         LapsLeftTextView = (TextView) findViewById(R.id.LapsLeftDisplay);
         EstimatedTotalTimeTextView = (TextView) findViewById(R.id.EstimatedTotalTimeDisplay);
         SimpleChronometer = (Chronometer) findViewById(R.id.TimeValue); // initiate a
+        CurrentLapTime = (Chronometer) findViewById(R.id.CurrentLapTime);
         StartPauseResumeButton = (Button) findViewById(R.id.StartPauseResumeButton);
         LastLapTimeTextview = (TextView) findViewById(R.id.PreviousLapTime);
         LastLapTimePerKMTextview = (TextView) findViewById(R.id.PreviousLapTimePerKM);
@@ -188,13 +206,17 @@ public class RunActivity extends AppCompatActivity {
         counter = 0;
         SimpleChronometer.stop();
         SimpleChronometer.setBase(SystemClock.elapsedRealtime());
+        CurrentLapTime.stop();
+        CurrentLapTime.setBase(SystemClock.elapsedRealtime());
         LapsLeft = GoalLapsInt;
         ChronometerStarted = false;
         TempWorkoutInfo = "";
         TimePerLapArray = new ArrayList();
         StringArray = "";
 
+        StartPauseResumeButton.setText("START");
         SimpleChronometer.setText("00:00:00");
+        CurrentLapTime.setText("00 s");
         EstimatedTimeLeftTextView.setText("00:00:00");
         EstimatedTotalTimeTextView.setText("00:00:00");
         LapsLeftTextView.setText(Integer.toString(GoalLapsInt) +" laps");
@@ -210,17 +232,23 @@ public class RunActivity extends AppCompatActivity {
     public void PauseTimer (){
         IsPaused = true;
         TimePaused = SimpleChronometer.getBase() - SystemClock.elapsedRealtime();
+        TimePausedCurrentLap = CurrentLapTime.getBase() - SystemClock.elapsedRealtime();
         SimpleChronometer.stop();
+        CurrentLapTime.stop();
     }
     public void ResumeTimer (){
         SimpleChronometer.setBase(SystemClock.elapsedRealtime() + TimePaused);
         SimpleChronometer.start();
+        CurrentLapTime.setBase(SystemClock.elapsedRealtime() + TimePausedCurrentLap);
+        CurrentLapTime.start();
+
         IsPaused = false;
     }
     public void StartTimer (){
         this.ResetEverything();
         SimpleChronometer.start();
         ChronometerStarted = true;
+        CurrentLapTime.start();
 
     }
 
@@ -238,6 +266,12 @@ public class RunActivity extends AppCompatActivity {
         LapsLeft = GoalLapsInt - counter;
         LapsLeftTextView.setText(Integer.toString(LapsLeft) + " laps");
     }
+    public void resetCurrentLapTime(){
+        CurrentLapTime.stop();
+        CurrentLapTime.setBase(SystemClock.elapsedRealtime());
+        CurrentLapTime.setText("00 s");
+        CurrentLapTime.start();
+    }
 
     public void UpdateLastLapTimeSeconds (){
         if (SecondsPreviousLapTime != -1) {
@@ -246,7 +280,7 @@ public class RunActivity extends AppCompatActivity {
             if (Integer.toString(SecondsDifference).length() < 2) {
                 CounterString += "0";
             }
-            LastLapTimeTextview.setText(CounterString + Integer.toString(SecondsDifference) + "  Secs");
+            LastLapTimeTextview.setText(CounterString + Integer.toString(SecondsDifference) + "  s");
         }
     }
     public void UpdateLastLapTimePerKM (){
@@ -268,7 +302,7 @@ public class RunActivity extends AppCompatActivity {
     public void UpdateLastLapMetersPerSecond (){
         if (SecondsPreviousLapTime != -1) {
             double SecondsDifference = (double) (SecondsCurrentTime - SecondsPreviousLapTime);
-            double MetersPerLap = (double) 1000 / (double) LapsPerKM;
+            double MetersPerLap = ((double) 1 / (double) LapsPerKM)*1000;
 
 
             double MetersPerSecond = MetersPerLap/SecondsDifference;
@@ -367,8 +401,12 @@ public class RunActivity extends AppCompatActivity {
         EstimatedTotalTimeTextView.setText("");
     }
     public void DeleteLastRunTime (){
+        CurrentLapTime.setText("");
         EstimatedTimeLeftTextView.setText("");
         EstimatedTotalTimeTextView.setText("");
+        LastLapTimePerKMTextview.setText("");
+        LastLapTimeTextview.setText("");
+        MetersPerSecondTextview.setText("");
         TimePerLapArray.remove(TimePerLapArray.size()- 1);
     }
 
@@ -431,13 +469,17 @@ public class RunActivity extends AppCompatActivity {
                         counter = 0;
                         SimpleChronometer.stop();
                         SimpleChronometer.setBase(SystemClock.elapsedRealtime());
+                        CurrentLapTime.stop();
+                        CurrentLapTime.setBase(SystemClock.elapsedRealtime());
                         LapsLeft = GoalLapsInt;
                         ChronometerStarted = false;
                         TempWorkoutInfo = "";
                         TimePerLapArray = new ArrayList();
                         StringArray = "";
 
+                        StartPauseResumeButton.setText("START");
                         SimpleChronometer.setText("00:00:00");
+                        CurrentLapTime.setText("00 s");
                         EstimatedTimeLeftTextView.setText("00:00:00");
                         EstimatedTotalTimeTextView.setText("00:00:00");
                         LapsLeftTextView.setText(Integer.toString(GoalLapsInt) +" laps");
@@ -486,13 +528,17 @@ public class RunActivity extends AppCompatActivity {
                         counter = 0;
                         SimpleChronometer.stop();
                         SimpleChronometer.setBase(SystemClock.elapsedRealtime());
+                        CurrentLapTime.stop();
+                        CurrentLapTime.setBase(SystemClock.elapsedRealtime());
                         LapsLeft = GoalLapsInt;
                         ChronometerStarted = false;
                         TempWorkoutInfo = "";
                         TimePerLapArray = new ArrayList();
                         StringArray = "";
 
+                        StartPauseResumeButton.setText("START");
                         SimpleChronometer.setText("00:00:00");
+                        CurrentLapTime.setText("00 s");
                         EstimatedTimeLeftTextView.setText("00:00:00");
                         EstimatedTotalTimeTextView.setText("00:00:00");
                         LapsLeftTextView.setText(Integer.toString(GoalLapsInt) +" laps");

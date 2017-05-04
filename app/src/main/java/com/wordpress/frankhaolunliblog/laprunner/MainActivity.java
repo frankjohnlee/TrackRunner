@@ -15,14 +15,17 @@ public class MainActivity extends AppCompatActivity {
     TextView StartWorkout;
     TextView GoalLapsTextview;
     TextView LapsPerTextView;
+    TextView WeightInPoundsTextView;
     int GoalLapsInt;
     int LapsPerKM;
+    double WeightInPounds;
     boolean DebugMode = true;
     SharedPreferences pref;
     boolean PreviousPreferences = false;
     SharedPreferences.Editor editor;
     int SavedGoalLapsInt;
     int SavedLapsPerKM;
+    double SavedWeightInPoundsDouble;
     String PastInformation;
     String EmptyString;
 
@@ -39,27 +42,30 @@ public class MainActivity extends AppCompatActivity {
         StartWorkout = (TextView) findViewById(R.id.StartWorkoutButton);
         GoalLapsTextview = (TextView) findViewById(R.id.GoalLapsInput);
         LapsPerTextView = (TextView) findViewById(R.id.LapsPerKMInputKM);
+        WeightInPoundsTextView = (TextView) findViewById(R.id.WeightInPounds);
 
         // Check for past values
         pref = getApplicationContext().getSharedPreferences("MyPref", 0);
         editor = pref.edit();
         SavedGoalLapsInt = pref.getInt("GoalLapsInt", -1);
         SavedLapsPerKM = pref.getInt("LapsPerKM", -1);
+        SavedWeightInPoundsDouble = Double.valueOf(pref.getString("LapsPerKM", "-1"));
+
         EmptyString = "";
         PastInformation = pref.getString("PastInformation", EmptyString);
 
         // Display the previous information
-        if (SavedGoalLapsInt != -1 && SavedLapsPerKM != -1){
-            PreviousPreferences = true;
-            if (PreviousPreferences && DebugMode){
-                Log.d("PreviousPreferences", "True");
-            }
-            else if (DebugMode) {
-                Log.d("PreviousPreferences", "False");
-            }
+        if (SavedGoalLapsInt != -1){
             GoalLapsTextview.setText(Integer.toString(SavedGoalLapsInt));
+        }
+        if (SavedLapsPerKM != -1){
             LapsPerTextView.setText(Integer.toString(SavedLapsPerKM));
         }
+        if (SavedWeightInPoundsDouble != -1){
+            WeightInPoundsTextView.setText(Double.toString(SavedWeightInPoundsDouble));
+        }
+
+
 
     }
 
@@ -68,9 +74,11 @@ public class MainActivity extends AppCompatActivity {
         // Save these values
         GoalLapsInt = Integer.parseInt(GoalLapsTextview.getText().toString());
         LapsPerKM = Integer.parseInt(LapsPerTextView.getText().toString());
+        WeightInPounds = Double.parseDouble(WeightInPoundsTextView.getText().toString());
         if (DebugMode) {
             Log.d("GoalLapsInt", Integer.toString(GoalLapsInt));
             Log.d("LapsPerKM", Integer.toString(LapsPerKM));
+            Log.d("WeightInPounds", Double.toString(WeightInPounds));
         }
         if ((GoalLapsTextview != null || !GoalLapsTextview.getText().equals(""))){
             editor.putInt("GoalLapsInt", GoalLapsInt);
@@ -79,6 +87,11 @@ public class MainActivity extends AppCompatActivity {
 
         if (LapsPerTextView == null || !LapsPerTextView.getText().equals("")){
             editor.putInt("LapsPerKM", LapsPerKM);
+            editor.apply();
+        }
+
+        if (WeightInPoundsTextView == null || !WeightInPoundsTextView.getText().equals("")){
+            editor.putString("WeightInPounds", Double.toString(WeightInPounds));
             editor.apply();
         }
 

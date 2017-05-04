@@ -14,6 +14,20 @@
     tools:context="com.wordpress.frankhaolunliblog.laprunner.MainActivity"
     tools:showIn="@layout/activity_main">
 
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/GoalLapsInput"
+        android:ems="10"
+        android:hint="Enter number of laps per km (track size)"
+        android:inputType="textPersonName"
+        android:text="" />
+
     <Button
         android:text="Start Workout"
         android:layout_width="wrap_content"
@@ -29,7 +43,7 @@
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
         android:text=""
-        android:hint="Enter How Many Laps You Plan to Run"
+        android:hint="Enter how many laps you plan to run"
         android:ems="10"
         android:id="@+id/GoalLapsInput"
         android:layout_marginTop="78dp"
@@ -39,15 +53,16 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
+
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
         android:text=""
-        android:hint="Enter Number of Laps Per Km (Track Size)"
+        android:hint="Enter weight in lbs (optional, calories est)"
         android:ems="10"
-        android:id="@+id/LapsPerKMInputKM"
-        android:layout_below="@+id/GoalLapsInput"
+        android:id="@+id/WeightInPounds"
+        android:layout_below="@+id/editText"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"

@@ -189,7 +189,7 @@
         android:id="@+id/textView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Minutes Per Km: "
+        android:text="Previous min/km: "
         android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
         android:layout_alignBaseline="@+id/PreviousLapTimePerKM"
         android:layout_alignBottom="@+id/PreviousLapTimePerKM"
@@ -202,10 +202,11 @@
         android:layout_height="wrap_content"
         android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
         android:text="00 s"
-        android:textColor="@android:color/holo_blue_dark"
+        android:textColor="@android:color/holo_green_dark"
         android:layout_below="@+id/LapsLeftDisplay"
         android:layout_alignLeft="@+id/CountValue"
-        android:layout_alignStart="@+id/CountValue" />
+        android:layout_alignStart="@+id/CountValue"
+        android:layout_marginTop="22dp" />
 
     <TextView
         android:id="@+id/PreviousLapTimePerKM"
@@ -215,7 +216,7 @@
         android:layout_alignStart="@+id/PreviousLapTime"
         android:layout_below="@+id/PreviousLapTime"
         android:text="00 min/km"
-        android:textColor="@android:color/holo_green_dark"
+        android:textColor="@android:color/holo_red_dark"
         android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"/>
 
     <TextView
@@ -225,7 +226,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/textView5"
-        android:text="Meters Per Second: "
+        android:text="Previous m/s: "
         android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"/>
 
     <TextView
@@ -236,8 +237,29 @@
         android:layout_below="@+id/PreviousLapTimePerKM"
         android:layout_alignLeft="@+id/PreviousLapTimePerKM"
         android:layout_alignStart="@+id/PreviousLapTimePerKM"
-        android:textColor="@android:color/holo_red_dark"
+        android:textColor="@android:color/holo_blue_dark"
         android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"/>
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Current Lap Time: "
+        android:layout_above="@+id/textView2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"/>
+
+    <Chronometer
+        android:text="00 s "
+        android:id="@+id/CurrentLapTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/textView6"
+        android:layout_alignLeft="@+id/LapsLeftDisplay"
+        android:layout_alignStart="@+id/LapsLeftDisplay"
+        android:textAppearance="@android:style/TextAppearance.Widget.TextView.PopupMenu"
+        android:textColor="@android:color/holo_blue_dark"/>
 
 
 </RelativeLayout>
