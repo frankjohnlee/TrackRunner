@@ -24,6 +24,12 @@ public class FinishWorkout extends AppCompatActivity {
     String Tabs = "     ";
     String StrCurrentWorkoutStats = "";
 
+    // Saved Values from MainActivity
+
+    int GoalLapsInt;
+    int LapsPerKM;
+    int Weight;
+
     TextView CurrentWorkoutStatsTextView;
 
     // For Database
@@ -34,6 +40,7 @@ public class FinishWorkout extends AppCompatActivity {
     String time_start;
     Integer laps_per_km;
     Integer total_laps;
+    String StrWeightInPounds;
 
     // Time
     Integer total_time;
@@ -66,24 +73,22 @@ public class FinishWorkout extends AppCompatActivity {
     Double avg_steps;
 
 
-    //|Start|Date|Time|GoalLap|LapsPerKM|LapNumber,Seconds, ...
+    //|Start|Date|Time|GoalLap|LapsPerKM|WeightInPoundsDouble|LapNumber,Seconds, ...
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finish_workout);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        this.GetValueMyPref();
         EachTimeArray = new ArrayList();
         CurrentWorkoutStatsTextView = (TextView) findViewById(R.id.CurrentWorkoutStats);
         SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
         editor = pref.edit();
         String ThisWorkoutString = pref.getString("ThisWorkout", "");
         if (DebugMode){
-            ThisWorkoutString = "|Start|2017-05-02|12:43:14|70|7|1,11,2,9,3,11,4,4,5,2,";
+            ThisWorkoutString = "|Start|2017-05-02|12:43:14|70|7|160|1,11,2,9,3,11,4,4,5,2,";
         }
 
         this.ExtraFromString(ThisWorkoutString);
@@ -102,31 +107,77 @@ public class FinishWorkout extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
+
     public void ExtraFromString (String ThisWorkout){
+        Boolean DebugExtraFromString = false;
+        String tabs = "     ";
+        if (DebugExtraFromString){
+            Log.d("Current Method", "GetValueMyPref");
+        }
+
         int IndicatorCount = 0;
         int counter = 0;
 
-        //|Start|Date|Time|GoalLap|LapsPerKM|StatsPerLap[[LapBefore, LapAfter, Seconds], ...]
-        // 1    2     3   4       5         6
+        //|Start|Date|Time|GoalLap|LapsPerKM|Weight|StatsPerLap[[LapBefore, LapAfter, Seconds], ...]
+        // 1    2     3   4       5         6       7
+
         while (counter <= ThisWorkout.length() - 1){
+
             String CurrentString = ThisWorkout.charAt(counter) + "";
+            if (DebugExtraFromString){
+                Log.d(tabs + "While Loop Count: ", Integer.toString(counter));
+                Log.d(tabs + "CurrentString: ", CurrentString);
+            };
+
             if (CurrentString.equals("|")){
                 IndicatorCount ++;
+                if (DebugExtraFromString){
+                    Log.d(tabs + tabs+ "CurrentString.equals(|): ", "IndicatorCount ++;");
+                };
+
             }
             else if (IndicatorCount == 2){
                 StrDate += CurrentString;
+                if (DebugExtraFromString){
+                    Log.d(tabs + tabs+ "StrDate", StrDate);
+                };
+
             }
             else if (IndicatorCount == 3){
                 StrTime += CurrentString;
+                if (DebugExtraFromString){
+                    Log.d(tabs + tabs+ "StrTime", StrTime);
+                };
+
             }
             else if (IndicatorCount == 4){
                 StrGoalLap += CurrentString;
+                if (DebugExtraFromString){
+                    Log.d(tabs + tabs+ "StrGoalLap", StrGoalLap);
+                };
+
             }
             else if (IndicatorCount == 5){
                 StrLapsPerKM += CurrentString;
+                if (DebugExtraFromString){
+                    Log.d(tabs + tabs+ "StrLapsPerKM", StrLapsPerKM);
+                };
+
             }
             else if (IndicatorCount == 6){
+                StrWeightInPounds = Integer.toString(Weight);
+                if (DebugExtraFromString){
+                    Log.d(tabs + tabs+ "StrWeightInPounds", StrWeightInPounds);
+                };
+
+            }
+            else if (IndicatorCount == 7){
                 StrStatsPerLap += CurrentString;
+                if (DebugExtraFromString){
+                    Log.d(tabs + tabs+ "StrStatsPerLap", StrStatsPerLap);
+                };
+
             }
 
             counter ++;
@@ -139,6 +190,7 @@ public class FinishWorkout extends AppCompatActivity {
         StrCurrentWorkoutStats += "Start Time: " + StrTime + "\n";
         StrCurrentWorkoutStats += "Goal: " + StrGoalLap + " laps" + "\n";
         StrCurrentWorkoutStats += "Track Size: " + StrLapsPerKM + " Laps per KM" + "\n";
+        StrCurrentWorkoutStats += "Weight: " + StrWeightInPounds + " lbs" + "\n";
         StrCurrentWorkoutStats += "Time breakdown for each lap: " + "\n";
     }
     public void GetLapValues(){
@@ -178,18 +230,39 @@ public class FinishWorkout extends AppCompatActivity {
         StrCurrentWorkoutStats += "Total Workout: " + hh + ":" + mm + ":" + ss;
 
     }
-
-
     public void FindBreakPoint(String string){
         if (DebugMode){
             Log.d("Find Break Point", string);
         }
     }
+    public void GetValueMyPref() {
+        String tabs = "     ";
+        Log.d("Current Method", "GetValueMyPref");
+        pref = getApplicationContext().getSharedPreferences("MyPref", 0);
+        editor = pref.edit();
+
+        String InputValuesStr = pref.getString("InputValues", "");
+        String[] InputValuesArray = InputValuesStr.split(" ");
+        int index = 0;
+        for (String s : InputValuesArray) {
+            Log.d(tabs + "s String", s);
+            if (index == 0) {
+                GoalLapsInt = Integer.valueOf(s);
+            } else if (index == 1) {
+                LapsPerKM = Integer.valueOf(s);
+            } else if (index == 2) {
+                Weight = Integer.valueOf(s);
+            }
+            index ++;
+        }
+    }
+
+
     public void DataIntoDatabase(){
         EachTimeArray = new ArrayList();
         this.EachTimeArrayHelper();
 
-        // "|Start|2017-05-02|12:43:14|70|7|1,11,2,9,3,11,4,4,5,2,";
+        // "|Start|2017-05-02|12:43:14|70|7|160.0|1,11,2,9,3,11,4,4,5,2,";
 
         // Get all the values I want
         id = StrDate + ", " + StrTime;

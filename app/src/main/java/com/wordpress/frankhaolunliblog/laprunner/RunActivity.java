@@ -16,11 +16,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
 
 public class RunActivity extends AppCompatActivity {
 
@@ -41,6 +43,7 @@ public class RunActivity extends AppCompatActivity {
     long SecondsPreviousLapTime = -1;
     int GoalLapsInt;
     int LapsPerKM;
+    int WeightInPounds;
     boolean IsPaused = false;
     long TimePaused = 0;
     long TimePausedCurrentLap = 0;
@@ -196,6 +199,12 @@ public class RunActivity extends AppCompatActivity {
         PastInformation = pref.getString("PastInformation", "");
         TimePerLapArray = new ArrayList();
         StringArray = "";
+        if (pref.getString("WeightInPounds", "135") == null || pref.getString("WeightInPounds", "135").equals("")){
+            WeightInPounds = Integer.valueOf("135");
+        }
+        else {
+            WeightInPounds = Integer.valueOf(pref.getString("WeightInPounds", "135"));
+        }
     }
 
 
@@ -510,17 +519,12 @@ public class RunActivity extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        this.FindBreakPoint("1");
                         this.LoadStartWorkoutString();
-                        this.FindBreakPoint("2");
                         this.AddTimePerLap();
-                        this.FindBreakPoint("3");
                         this.StoreThisWorkout();
-                        this.FindBreakPoint("4");
                         this.ResetEverything();
-                        this.FindBreakPoint("5");
                         this.GoToFinishedWorkoutActivity();
-                        this.FindBreakPoint("6");
+
                     }
                     public void ResetEverything (){
                         IsPaused = false;
@@ -556,7 +560,8 @@ public class RunActivity extends AppCompatActivity {
                                 "|Start|" + date +
                                         "|" + Integer.toString(GoalLapsInt) +
                                         "|" + Integer.toString(LapsPerKM) +
-                                        "|";
+                                        "|" + WeightInPounds
+                                        + "|";
 
                     }
                     public void AddTimePerLap (){
@@ -581,6 +586,10 @@ public class RunActivity extends AppCompatActivity {
                         //Keep this particular workout
                         editor.putString("ThisWorkout", TempWorkoutInfo);
                         editor.apply();
+
+                        if (DebugMode){
+                            Log.d("TempWorkoutInfo", TempWorkoutInfo);
+                        }
 
                     }
                     public void GoToFinishedWorkoutActivity(){
