@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- COMPLETED (1) Add two more checkboxes for the treble and mid-range -->
+    <CheckBoxPreference
+        android:defaultValue="@string/default_value_distance_measurement"
+        android:key="@string/default_key_distance_measurement"
+        android:summaryOff="@string/summary_on_distance_measurement"
+        android:summaryOn="@string/summary_off_distance_measurement"
+        android:title="@string/default_distance_measurement_title" />
+
+
+</PreferenceScreen>

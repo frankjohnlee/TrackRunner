@@ -7,6 +7,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.HapticFeedbackConstants;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -23,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     int GoalLapsInt;
     int LapsPerKM;
     int Weight;
-    boolean DebugMode = true;
+    boolean DebugMode = false;
     SharedPreferences pref;
     boolean PreviousPreferences = false;
     SharedPreferences.Editor editor;
@@ -74,6 +77,27 @@ public class MainActivity extends AppCompatActivity {
         this.SetToView(SavedWeight, WeightInPoundsTextView);
 
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        /* Use AppCompatActivity's method getMenuInflater to get a handle on the menu inflater */
+        MenuInflater inflater = getMenuInflater();
+        /* Use the inflater's inflate method to inflate our visualizer_menu layout to this menu */
+        inflater.inflate(R.menu.mainactivity_menu, menu);
+        /* Return true so that the visualizer_menu is displayed in the Toolbar */
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
+            startActivity(startSettingsActivity);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
 
     public void StartWorkout(View view) {
         view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
@@ -99,16 +123,19 @@ public class MainActivity extends AppCompatActivity {
         editor = pref.edit();
 
         String InputValuesStr = pref.getString("InputValues", "");
+        Log.d("InputValuesStr", tabs + InputValuesStr);
         String[] InputValuesArray = InputValuesStr.split(" ");
         int index = 0;
         for (String s : InputValuesArray) {
             Log.d(tabs + "s String", s);
-            if (index == 0) {
-                SavedGoalLapsInt = Integer.valueOf(s);
-            } else if (index == 1) {
-                SavedLapsPerKM = Integer.valueOf(s);
-            } else if (index == 2) {
-                SavedWeight = Integer.valueOf(s);
+            if (s != "") {
+                if (index == 0) {
+                    SavedGoalLapsInt = Integer.valueOf(s);
+                } else if (index == 1) {
+                    SavedLapsPerKM = Integer.valueOf(s);
+                } else if (index == 2) {
+                    SavedWeight = Integer.valueOf(s);
+                }
             }
             index ++;
         }
@@ -120,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         WeightInPoundsTextView = (TextView) findViewById(WeightInPounds);
     }
     public void SetToView(int number, TextView theTextView){
-        if (number != -1){
+        if (number > 0){
             theTextView.setText(Integer.toString(number));
         }
     }

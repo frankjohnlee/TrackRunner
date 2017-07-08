@@ -16,20 +16,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
-import android.widget.Switch;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import static android.R.id.tabs;
+
 
 public class RunActivity extends AppCompatActivity {
 
-    boolean DebugMode = true;
+    boolean DebugMode = false;
     boolean ChronometerStarted = false;
     TextView showValue;
     TextView EstimatedTimeLeftTextView;
+    TextView CaloriesBurnedTextView;
     TextView LapsLeftTextView;
     Chronometer SimpleChronometer;
     Chronometer CurrentLapTime;
@@ -38,6 +41,7 @@ public class RunActivity extends AppCompatActivity {
     TextView LastLapTimeTextview;
     TextView LastLapTimePerKMTextview;
     TextView MetersPerSecondTextview;
+    TextView PercentageDoneTextView;
     int LapsLeft;
     int counter = -1;
     long SecondsPreviousLapTime = -1;
@@ -48,17 +52,24 @@ public class RunActivity extends AppCompatActivity {
     long TimePaused = 0;
     long TimePausedCurrentLap = 0;
     int SecondsCurrentTime;
+    int SecondsDifferenceThisLap;
     String PastInformation;
     String PastTotalTimes;
     String TempWorkoutInfo;   //|Start|Date|Time|GoalLapInt|LapsPerKM|LapBefore,LapAfter,Seconds,...
     ArrayList TimePerLapArray;
+
+    // MIN/KM
+    double MinutesPerKM = -1;
+
+    // Calories Burned
+    ArrayList<Double> CalorieChartMetersPerKm = new ArrayList<>();
+    ArrayList<Double> CalorieChartMETS = new ArrayList<>();
+    ArrayList<Double> CaloriesBurnedArray = new ArrayList<>();
+    double CaloriesBurned = -1.0;
+    double CaloriesBurnedThis = -1.0;
+
     String StringArray;
     SharedPreferences.Editor editor;
-
-
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +79,7 @@ public class RunActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         this.ViewSetup();
         this.GetStoredValues();
+        this.SetCaloriesMETS();
         SimpleChronometer.setText("00:00:00");
         SimpleChronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
             public void onChronometerTick(Chronometer cArg) {
@@ -108,8 +120,10 @@ public class RunActivity extends AppCompatActivity {
             this.UpdateLastLapTimePerKM();
             this.UpdateTimeLeft();
             this.UpdateEstimatedFinishTime();
-            this.AddTimePerLap();
+            this.UpdateTimePerLap();
             this.UpdateLastLapTimeSeconds();
+            this.UpdateCaloriesBurned();
+            this.UpdatePercentageLeft();
             SecondsPreviousLapTime = SecondsCurrentTime;
 
         }
@@ -121,6 +135,7 @@ public class RunActivity extends AppCompatActivity {
             this.UpdateCounter();
             this.ClearEstimateViews();
             this.DeleteLastRunTime();
+            this.UndoLastLapCalories();
             this.resetCurrentLapTime();
         }
     }
@@ -157,7 +172,7 @@ public class RunActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.mainactivity_menu, menu);
         return true;
     }
 
@@ -191,24 +206,71 @@ public class RunActivity extends AppCompatActivity {
         LastLapTimeTextview = (TextView) findViewById(R.id.PreviousLapTime);
         LastLapTimePerKMTextview = (TextView) findViewById(R.id.PreviousLapTimePerKM);
         MetersPerSecondTextview = (TextView) findViewById(R.id.MetersPerSecondTextview);
+        CaloriesBurnedTextView = (TextView) findViewById(R.id.CaloriesBurned);
+        PercentageDoneTextView = (TextView) findViewById(R.id.PercentageDoneTextView);
     }
-    public void GetStoredValues (){
+    public void GetStoredValues() {
+        Log.d("Current Method", "GetValueMyPref");
         SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
-        GoalLapsInt = pref.getInt("GoalLapsInt", 0);
-        LapsPerKM = pref.getInt("LapsPerKM", 0);
-        PastInformation = pref.getString("PastInformation", "");
-        TimePerLapArray = new ArrayList();
-        StringArray = "";
-        if (pref.getString("WeightInPounds", "135") == null || pref.getString("WeightInPounds", "135").equals("")){
-            WeightInPounds = Integer.valueOf("135");
+        editor = pref.edit();
+
+        String InputValuesStr = pref.getString("InputValues", "");
+        Log.d("InputValuesStr", tabs + InputValuesStr);
+        String[] InputValuesArray = InputValuesStr.split(" ");
+        int index = 0;
+        for (String s : InputValuesArray) {
+            Log.d(tabs + "s String", s);
+            if (s != "") {
+                if (index == 0) {
+                    GoalLapsInt = Integer.valueOf(s);
+                } else if (index == 1) {
+                    LapsPerKM = Integer.valueOf(s);
+                } else if (index == 2) {
+                    WeightInPounds = Integer.valueOf(s);
+                }
+            }
+            index ++;
         }
-        else {
-            WeightInPounds = Integer.valueOf(pref.getString("WeightInPounds", "135"));
-        }
+    }
+    public void SetCaloriesMETS(){
+        CalorieChartMetersPerKm.add(8.078);
+        CalorieChartMetersPerKm.add(7.456);
+        CalorieChartMetersPerKm.add(7.146);
+        CalorieChartMetersPerKm.add(6.214);
+        CalorieChartMetersPerKm.add(5.592);
+        CalorieChartMetersPerKm.add(5.28);
+        CalorieChartMetersPerKm.add(4.971);
+        CalorieChartMetersPerKm.add(4.66);
+        CalorieChartMetersPerKm.add(4.35);
+        CalorieChartMetersPerKm.add(4.04);
+        CalorieChartMetersPerKm.add(3.728);
+        CalorieChartMetersPerKm.add(3.42);
+        CalorieChartMetersPerKm.add(3.107);
+        CalorieChartMetersPerKm.add(2.86);
+        CalorieChartMetersPerKm.add(2.67);
+
+        CalorieChartMETS.add(6.0);
+        CalorieChartMETS.add(8.3);
+        CalorieChartMETS.add(9.0);
+        CalorieChartMETS.add(9.8);
+        CalorieChartMETS.add(10.5);
+        CalorieChartMETS.add(11.0);
+        CalorieChartMETS.add(11.5);
+        CalorieChartMETS.add(11.8);
+        CalorieChartMETS.add(12.3);
+        CalorieChartMETS.add(12.8);
+        CalorieChartMETS.add(14.5);
+        CalorieChartMETS.add(16.0);
+        CalorieChartMETS.add(19.0);
+        CalorieChartMETS.add(19.8);
+        CalorieChartMETS.add(23.0);
+
+
+
     }
 
 
-    // Reset Button
+
     public void ResetEverything (){
         IsPaused = false;
         TimePaused = 0;
@@ -225,26 +287,29 @@ public class RunActivity extends AppCompatActivity {
 
         StartPauseResumeButton.setText("START");
         SimpleChronometer.setText("00:00:00");
-        CurrentLapTime.setText("00 s");
-        EstimatedTimeLeftTextView.setText("00:00:00");
-        EstimatedTotalTimeTextView.setText("00:00:00");
+        CurrentLapTime.setText("");
+        EstimatedTimeLeftTextView.setText("");
+        EstimatedTotalTimeTextView.setText("");
         LapsLeftTextView.setText(Integer.toString(GoalLapsInt) +" laps");
         showValue.setText("00 laps");
-        LastLapTimePerKMTextview.setText("00 min/km");
-        LastLapTimeTextview.setText("00 s");
+        LastLapTimePerKMTextview.setText("");
+        LastLapTimeTextview.setText("");
         SecondsPreviousLapTime = -1;
-        MetersPerSecondTextview.setText("00 m/s");
+        MetersPerSecondTextview.setText("");
+        CaloriesBurnedTextView.setText("");
+        PercentageDoneTextView.setText("");
 
-    }
 
-    // Start/Pause/Resume Button
+    } // Reset Button
+
+
     public void PauseTimer (){
         IsPaused = true;
         TimePaused = SimpleChronometer.getBase() - SystemClock.elapsedRealtime();
         TimePausedCurrentLap = CurrentLapTime.getBase() - SystemClock.elapsedRealtime();
         SimpleChronometer.stop();
         CurrentLapTime.stop();
-    }
+    } // Start/Pause/Resume Button
     public void ResumeTimer (){
         SimpleChronometer.setBase(SystemClock.elapsedRealtime() + TimePaused);
         SimpleChronometer.start();
@@ -261,8 +326,8 @@ public class RunActivity extends AppCompatActivity {
 
     }
 
-    // Count Increase Button
-    public void UpdateCounter (){
+
+    public void UpdateCounter (){ // Count Increase Button
         String CounterString = "";
         if (Integer.toString(counter).length() < 2) {
             CounterString += "0";
@@ -285,6 +350,7 @@ public class RunActivity extends AppCompatActivity {
     public void UpdateLastLapTimeSeconds (){
         if (SecondsPreviousLapTime != -1) {
             int SecondsDifference = (int) (SecondsCurrentTime - SecondsPreviousLapTime);
+            SecondsDifferenceThisLap = SecondsDifference;
             String CounterString = "";
             if (Integer.toString(SecondsDifference).length() < 2) {
                 CounterString += "0";
@@ -296,7 +362,7 @@ public class RunActivity extends AppCompatActivity {
         if (SecondsPreviousLapTime != -1) {
             double SecondsDifference = (double) (SecondsCurrentTime - SecondsPreviousLapTime);
 
-            double MinutesPerKM = (SecondsDifference * LapsPerKM)/60;
+            MinutesPerKM = (SecondsDifference * LapsPerKM)/60;
             String CounterString = "";
             if (Double.toString(MinutesPerKM).length() < 2) {
                 CounterString += "0";
@@ -397,10 +463,130 @@ public class RunActivity extends AppCompatActivity {
         }
 
     }
-    public void AddTimePerLap(){
+    public void UpdateTimePerLap(){
         int SecondsLastLapTimePerKM = (int) (SecondsCurrentTime - SecondsPreviousLapTime);
         String thisLap = Integer.toString(counter) + "," + Integer.toString(SecondsLastLapTimePerKM);
         TimePerLapArray.add(thisLap);
+    }
+    public void UpdateCaloriesBurned(){
+        this.Print("Method: ", "UpdateCaloriesBurned");
+        if (MinutesPerKM != -1.0){
+            // First we get a list of differences
+            ArrayList<Double> DifferenceFromMETSArray = this.DifferencesArray();
+            int IndexSmallest = this.SmallestDifferenceIndex(DifferenceFromMETSArray);
+            CaloriesBurnedThis = this.CaloriesBurned(IndexSmallest, WeightInPounds, CalorieChartMETS, SecondsCurrentTime);
+            CaloriesBurnedThis = this.RoundDouble(CaloriesBurnedThis, 2);
+
+            if (CaloriesBurned == -1.0){
+                CaloriesBurned = CaloriesBurnedThis;
+            }
+            else {
+                CaloriesBurned += CaloriesBurnedThis;
+            }
+
+            CaloriesBurned = this.RoundDouble(CaloriesBurned, 2);
+
+            String CaloriesBurnedStr = Double.toString(CaloriesBurned) + " cal";
+            CaloriesBurnedTextView.setText(CaloriesBurnedStr);
+        }
+    }
+    public void UpdatePercentageLeft(){
+        double decimalDone = (double) counter/ (double) GoalLapsInt;
+        double percentageDone = decimalDone*100;
+        double percentageRounded = this.RoundDouble(percentageDone, 2);
+        Log.d("LapsLeft", Integer.toString(LapsLeft));
+        Log.d("GoalLapsInt", Integer.toString(GoalLapsInt));
+        Log.d("decimalDone", Double.toString(decimalDone));
+        Log.d("percentageDone", Double.toString(percentageDone));
+        Log.d("percentageRounded", Double.toString(percentageRounded));
+        PercentageDoneTextView.setText(Double.toString(percentageRounded) + "%");
+    }
+
+
+    public ArrayList DifferencesArray (){
+        ArrayList<Double> DifferenceFromMETSArray = new ArrayList();
+        int index = 0;
+        String tabs = "     ";
+        this.Print(tabs + "Loop: ", "DiffMETSArray");
+        this.PrintArrayListDouble(tabs + "DiffMetsArray", DifferenceFromMETSArray);
+        while (index <= CalorieChartMetersPerKm.size() - 1){
+            double CalorieChartValue = CalorieChartMetersPerKm.get(index);
+            double ValueDifference = Math.abs(CalorieChartValue - MinutesPerKM);
+
+            this.Print(tabs + tabs +"index", Integer.toString(index));
+            this.Print(tabs + tabs + tabs + "MinutesPerKM", Double.toString(MinutesPerKM));
+            this.Print(tabs + tabs+ tabs  + "CalorieChartValue", Double.toString(CalorieChartValue));
+            this.Print(tabs + tabs + tabs  + "ValuesDifference", Double.toString(ValueDifference));
+            DifferenceFromMETSArray.add(ValueDifference);
+            index ++;
+        }
+        return DifferenceFromMETSArray;
+    }
+    public int SmallestDifferenceIndex(ArrayList<Double> DifferenceFromMETSArray) {
+        // Now figure out what the smallest index is
+        int index = 0;
+        int IndexSmallest = 0;
+        double SmallestValue = -1.0;
+        // Now we figure out what index is the smallest value
+        while (index <= DifferenceFromMETSArray.size() - 1) {
+            if (SmallestValue == -1.0) {
+                SmallestValue = DifferenceFromMETSArray.get(index);
+            } else if (SmallestValue > DifferenceFromMETSArray.get(index)) {
+                SmallestValue = DifferenceFromMETSArray.get(index);
+                IndexSmallest = index;
+            }
+            index++;
+        }
+        this.Print("Smallest Index Method returns: ", Integer.toString(IndexSmallest));
+        return IndexSmallest;
+    }
+    public double CaloriesBurned(int IndexSmallest, int WeightInPounds, ArrayList<Double> CalorieChartMETS, int SecondsCurrentTime){
+        String TABS = "     ";
+        double METSValue = CalorieChartMETS.get(IndexSmallest);
+        double WeightInKG = this.RoundDouble(WeightInPounds * 0.45359237, 2);
+        double Hours = ((double) SecondsDifferenceThisLap)/60.0/60.0;
+        double CaloriesBurned =  METSValue * WeightInKG * Hours;
+        CaloriesBurned = this.RoundDouble(CaloriesBurned, 2);
+        this.Print("Calories Burned Method ", "");
+        this.Print(TABS + "METSValue: ", Double.toString(METSValue));
+        this.Print(TABS + "WeightInKG: ", Double.toString(WeightInKG));
+        this.Print(TABS + "Hours: ", Double.toString(Hours));
+        this.Print(TABS + "CaloriesBurned :", Double.toString(CaloriesBurned));
+        return CaloriesBurned;
+    }
+
+
+
+    public void Print(String String1, String String2){
+        if (DebugMode){
+            Log.d(String1, String2);
+        }
+    } //General Helper Functions
+    public void PrintCheck (Boolean Check, String String1, String String2){
+        if (Check){
+            Log.d(String1, String2);
+        }
+    }
+    public void PrintArrayListDouble (String Identifier, ArrayList<Double> thisArray){
+        String StringAccum = "[";
+        int index = 0;
+        while (index <= thisArray.size() - 1){
+            StringAccum += Double.toString(thisArray.get(index)) + " ";
+            index ++;
+        }
+        StringAccum = StringAccum + "]";
+        this.Print(Identifier, StringAccum);
+
+    }
+    double RoundDouble(double val, int numberDecimalsToRound) {
+        String DecimalFormatStr = "###.";
+        int index = 1;
+        while (numberDecimalsToRound >= index){
+            DecimalFormatStr += "#";
+            index ++;
+        }
+        DecimalFormat df2 = new DecimalFormat(DecimalFormatStr);
+        return Double.valueOf(df2.format(val));
     }
 
 
@@ -417,6 +603,23 @@ public class RunActivity extends AppCompatActivity {
         LastLapTimeTextview.setText("");
         MetersPerSecondTextview.setText("");
         TimePerLapArray.remove(TimePerLapArray.size()- 1);
+    }
+    public void UndoLastLapCalories() {
+        if (CaloriesBurnedThis != -1.0){
+            double ReversedCalories = CaloriesBurned - CaloriesBurnedThis;
+            if (ReversedCalories >= 0.0){
+                CaloriesBurned = ReversedCalories;
+                CaloriesBurned = this.RoundDouble(CaloriesBurned, 2);
+                String CaloriesBurnedStr = Double.toString(CaloriesBurned) + " cal";
+                CaloriesBurnedTextView.setText(CaloriesBurnedStr);
+
+            }
+        }
+
+        if (counter == 0){
+            CaloriesBurned = -1.0;
+            CaloriesBurnedTextView.setText("0.0 cal");
+        }
     }
 
     // Finish Workout Button
@@ -472,7 +675,7 @@ public class RunActivity extends AppCompatActivity {
                             view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
                             this.ResetEverything();
                     }
-                    public void ResetEverything (){
+                    public void ResetEverything () {
                         IsPaused = false;
                         TimePaused = 0;
                         counter = 0;
@@ -488,17 +691,19 @@ public class RunActivity extends AppCompatActivity {
 
                         StartPauseResumeButton.setText("START");
                         SimpleChronometer.setText("00:00:00");
-                        CurrentLapTime.setText("00 s");
-                        EstimatedTimeLeftTextView.setText("00:00:00");
-                        EstimatedTotalTimeTextView.setText("00:00:00");
-                        LapsLeftTextView.setText(Integer.toString(GoalLapsInt) +" laps");
+                        CurrentLapTime.setText("");
+                        EstimatedTimeLeftTextView.setText("");
+                        EstimatedTotalTimeTextView.setText("");
+                        LapsLeftTextView.setText(Integer.toString(GoalLapsInt) + " laps");
                         showValue.setText("00 laps");
-                        LastLapTimePerKMTextview.setText("00 min/km");
-                        LastLapTimeTextview.setText("00 s");
+                        LastLapTimePerKMTextview.setText("");
+                        LastLapTimeTextview.setText("");
                         SecondsPreviousLapTime = -1;
-                        MetersPerSecondTextview.setText("00 m/s");
-
+                        MetersPerSecondTextview.setText("");
+                        CaloriesBurnedTextView.setText("");
+                        PercentageDoneTextView.setText("");
                     }
+
                 });
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
@@ -520,13 +725,13 @@ public class RunActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         this.LoadStartWorkoutString();
-                        this.AddTimePerLap();
+                        this.UpdateTimePerLap();
                         this.StoreThisWorkout();
                         this.ResetEverything();
                         this.GoToFinishedWorkoutActivity();
 
                     }
-                    public void ResetEverything (){
+                    public void ResetEverything () {
                         IsPaused = false;
                         TimePaused = 0;
                         counter = 0;
@@ -542,16 +747,17 @@ public class RunActivity extends AppCompatActivity {
 
                         StartPauseResumeButton.setText("START");
                         SimpleChronometer.setText("00:00:00");
-                        CurrentLapTime.setText("00 s");
-                        EstimatedTimeLeftTextView.setText("00:00:00");
-                        EstimatedTotalTimeTextView.setText("00:00:00");
-                        LapsLeftTextView.setText(Integer.toString(GoalLapsInt) +" laps");
+                        CurrentLapTime.setText("");
+                        EstimatedTimeLeftTextView.setText("");
+                        EstimatedTotalTimeTextView.setText("");
+                        LapsLeftTextView.setText(Integer.toString(GoalLapsInt) + " laps");
                         showValue.setText("00 laps");
-                        LastLapTimePerKMTextview.setText("00 min/km");
-                        LastLapTimeTextview.setText("00 s");
+                        LastLapTimePerKMTextview.setText("");
+                        LastLapTimeTextview.setText("");
                         SecondsPreviousLapTime = -1;
-                        MetersPerSecondTextview.setText("00 m/s");
-
+                        MetersPerSecondTextview.setText("");
+                        CaloriesBurnedTextView.setText("");
+                        PercentageDoneTextView.setText("");
                     }
                     public void LoadStartWorkoutString (){
                         String date = new SimpleDateFormat("yyyy-MM-dd|hh:mm:ss").format(new Date());
@@ -564,7 +770,7 @@ public class RunActivity extends AppCompatActivity {
                                         + "|";
 
                     }
-                    public void AddTimePerLap (){
+                    public void UpdateTimePerLap (){
                         int index = 0;
                         String StringArray = "";
                         while (index <= TimePerLapArray.size()-1){
@@ -617,8 +823,6 @@ public class RunActivity extends AppCompatActivity {
     }
 
     // Get Data and Put Them Into A Table
-
-
 }
 
 

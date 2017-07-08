@@ -18,15 +18,15 @@
         android:id="@+id/LapsPerKMInputKM"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/GoalLapsInput"
         android:ems="10"
         android:hint="Enter number of laps per km (track size)"
         android:inputType="textPersonName"
-        android:text="" />
+        android:text=""
+        android:layout_below="@+id/GoalLapsInput"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <Button
         android:text="Start Workout"

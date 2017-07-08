@@ -1,18 +1,21 @@
 package com.wordpress.frankhaolunliblog.laprunner;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 
 public class FinishWorkout extends AppCompatActivity {
-    boolean DebugMode = true;
+    boolean DebugMode = false;
     SharedPreferences pref;
     SharedPreferences.Editor editor;
     String StrDate = "";
@@ -88,24 +91,14 @@ public class FinishWorkout extends AppCompatActivity {
         editor = pref.edit();
         String ThisWorkoutString = pref.getString("ThisWorkout", "");
         if (DebugMode){
-            ThisWorkoutString = "|Start|2017-05-02|12:43:14|70|7|160|1,11,2,9,3,11,4,4,5,2,";
+            ThisWorkoutString = "|Start|2017-05-02|12:43:14|70|7|160|1,11,2,9,3,11,4,4,5,2,4,9,3,2,1,4,5,3,1,2,3,5,6,3,2,6,3,5,6,8,5,3,8,9,7,4";
         }
 
         this.ExtraFromString(ThisWorkoutString);
         this.SetCurrentWorkoutStatsTextView();
         this.GetLapValues();
         this.DataIntoDatabase();
-
         CurrentWorkoutStatsTextView.setText(StrCurrentWorkoutStats);
-
-
-
-
-    }
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
     }
 
 

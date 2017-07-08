@@ -3,4 +3,15 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_run">Lap Runner</string>
     <string name="title_activity_finish_workout">FinishWorkout</string>
+
+    <string name="default_key_distance_measurement" translatable="false">distance_measurement</string>
+    <string name="default_distance_measurement" translatable="false">KM</string>
+    <string name="summary_on_distance_measurement" translatable="false">Kilometer</string>
+    <string name="summary_off_distance_measurement" translatable="false">Mile</string>
+    <string name="default_distance_measurement_title">Toggle Kilometer/Mile</string>
+    <string name="default_value_distance_measurement" translatable="false">True</string>
+
+
+
+
 </resources>
